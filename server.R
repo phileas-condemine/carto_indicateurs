@@ -1,16 +1,36 @@
 function(input,output,session){
+  
+  
+  
   toggleModal(session, "startupModal", toggle = "open")
   
   to_plot=reactiveVal(index)
   tags_reac=reactiveVal()
   # onclick()
-  output$DT_to_render=renderDataTable(to_plot()[,vars_to_show,with=F], filter="top",
+  output$DT_to_render=renderDT(to_plot()[,input$vars_to_show,with=F], 
+          filter="top",
           extensions = 'Buttons',
           options = list(searchHighlight = TRUE,
-          dom = "lftiprtB",
-          initComplete = custom_DT,scrollY=T,
-          pageLength = 10,buttons = c('copy', 'csv', 'excel')),
-          class = "display",selection = 'single',rownames=F)
+                            language = list(
+                              info = 'Résultats _START_ à _END_ sur une liste de _TOTAL_.',
+                              paginate = list(previous = 'Précédent', `next` = 'Suivant')
+                            ),
+                            dom = "lftiprB",#"tirB"
+                            # initComplete = custom_DT,
+                         scrollY=T,
+                            pageLength = 30
+                            ,buttons = c('copy', 'csv', 'excel')
+                            ,columnDefs = list(list(
+                              targets = 0:(length(input$vars_to_show)-1),
+                              className = 'dt-center',
+                              render = JS(
+                                "function(data, type, row, meta) {",
+                                "return type === 'display' && data.length > 50 ?",
+                                "'<span title=\"' + data + '\">' + data.substr(0, 50) + '...</span>' : data;",
+                                "}")
+                            ))
+            ),class = "display",selection = 'single',rownames=F
+          )
   # callModule(module = my_value_boxes,id = "valueBoxes",reactive(to_plot()),reactive(NULL))
 
   observeEvent(input$DT_to_render_rows_all,{
@@ -19,7 +39,7 @@ function(input,output,session){
   # 
 
   onclick("doc_click",{
-    showModal(modalDialog(title="Documentation",
+    showModal(modalDialog(title="Portail des indicateurs",easyClose = T,
       includeMarkdown("readme.md")
     ))
   })
@@ -76,8 +96,12 @@ function(input,output,session){
                                paste(tags_reac()[tags_clicked],collapse=", ")),type = "message",id="add_tag")
     }
   })
-  observeEvent(c(input$tag,input$DT_to_render_search,input$DT_to_render_filter),{
-    text=input$DT_to_render_search#on veut conserver le texte de recherche !
+  
+  observeEvent(c(input$tag
+                 # ,input$DT_to_render_search
+                 # ,input$DT_to_render_filter
+                 ),{
+    # text=input$DT_to_render_search#on veut conserver le texte de recherche !
     recherche=input$tag
     to_plot(index)
     if (!is.null(recherche)){
@@ -89,13 +113,30 @@ function(input,output,session){
       index_to_keep=tag_pred[which_to_keep]$index
       
       to_plot(to_plot()[index%in%index_to_keep])
-      output$DT_to_render=renderDataTable(to_plot()[,vars_to_show,with=F], filter="top",
-                              extensions = 'Buttons',
-                              options = list(searchHighlight = TRUE,
-                                             dom = "lftiprtB",
-                                             initComplete = custom_DT,scrollY=T,search=list(search=text),
-                                             pageLength = 10,buttons = c('copy', 'csv', 'excel')),
-                              class = "display",selection = 'single',rownames=F)
+      output$DT_to_render=renderDT(to_plot()[,input$vars_to_show,with=F],
+                                          filter="top",
+                                          extensions = 'Buttons',
+                                          options = list(searchHighlight = TRUE,
+                                                                   language = list(
+                                                                     info = 'Résultats _START_ à _END_ sur une liste de _TOTAL_.',
+                                                                     paginate = list(previous = 'Précédent', `next` = 'Suivant')
+                                                                   ),
+                                                                   dom = "lftiprB",#"tirB"
+                                                                   # initComplete = custom_DT,
+                                                         scrollY=T,
+                                                                   pageLength = 30
+                                                                   ,buttons = c('copy', 'csv', 'excel')
+                                                                   ,columnDefs = list(list(
+                                                                     targets = 0:(length(input$vars_to_show)-1),
+                                                                     className = 'dt-center',
+                                                                     render = JS(
+                                                                       "function(data, type, row, meta) {",
+                                                                       "return type === 'display' && data.length > 50 ?",
+                                                                       "'<span title=\"' + data + '\">' + data.substr(0, 50) + '...</span>' : data;",
+                                                                       "}")
+                                                                   ))
+                                          ),class = "display",selection = 'single',rownames=F
+      )
     }
   })
 }

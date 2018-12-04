@@ -42,8 +42,14 @@ library(markdown)
 
 
 load("index_acro.RData")
-table(index$Producteur)
+set.seed(1)
+index=index[,-1]
 
+names(index) <- enc2utf8(names(index))
+table(index$Producteur)
+index=index%>%mutate_if(is.character,factor)%>%data.table
+index$random_order=sample(nrow(index))
+setorder(index,random_order)
 # load("data/indicateurs_a_tagger.RData")
 # tag_pred=indicateurs_pred[,c("indic_id","tag1","tag2","tag3"),with=F]
 # setnames(tag_pred,"indic_id","index")
@@ -62,64 +68,105 @@ source_readme="https://raw.githubusercontent.com/phileas-condemine/carto_indicat
 # full_text=pbapply::pbapply(index,1,paste,collapse=" ")
 # save(full_text,file="full_text.RData")
 load("data/full_text.RData")
-head(index)
 
 
-custom_DT=JS(
-  "function(settings, json) {",
-  "console.log(this.api());",
-  "$('.dataTables_filter').css({'float':'inherit'",
-  ",'text-align':'center','vertical-align':'middle'});",
-  "$('.dataTables_filter input').wrap('<div class=&quot;search-bar-seule&quot; id=&quot;search-bar-seule&quot; ></div>');",
-  "$('input[type=search]').removeClass().addClass('selectize-input');",
-  # "$('.dataTables_length').children().appendTo('div.dataTables_filter')
-                                     # .css({'float':'inherit','text-align':'right','vertical-align':'middle'})",
-  # "$('.form-group.shiny-input-container').children().appendTo('.dataTables_filter')",
-  "function setTextContents($elem, text) {",
-  "  $elem.contents().filter(function() {",
-  "    if (this.nodeType == Node.TEXT_NODE) {",
-  "      this.nodeValue = text;",
-  "    }",
-  "  });",
-  "}",
-  "setTextContents($('.dataTables_filter label'), 'Recherche par mot(s) clef(s)');",
-  "}")
+# custom_DT=JS(
+#   "function(settings, json) {",
+#   "console.log(this.api());",
+#   # "$('.dataTables_filter').css({'float':'inherit'",
+#   # ",'text-align':'center','vertical-align':'middle'});",
+#   # "$('.dataTables_filter input').wrap('<div class=&quot;search-bar-seule&quot; id=&quot;search-bar-seule&quot; ></div>');",
+#   # "$('input[type=search]').removeClass().addClass('selectize-input');",
+#   # "$('#sidebarItemExpanded > .dataTables_filter').remove();",
+#   # "$('#sidebarItemExpanded > .dataTables_length').remove();",
+#   # "$('.dataTables_filter').addClass('form-group shiny-input-container').appendTo('#sidebarItemExpanded');",
+#   # "$('.dataTables_length').addClass('form-group shiny-input-container').appendTo('#sidebarItemExpanded');",
+#   #MODIFICATION DU TEXTE DU SELECT DE LA LONGUEUR DE LA TABLE AFFICHEE
+# "function replaceNodeText(){
+#   console.log(this.nodeType);
+#   if (this.nodeType == 3){
+#     this.nodeValue = this.nodeValue.replace(replaceNodeText.find,replaceNodeText.replace);
+#       } else {
+#     $(this).contents().each(replaceNodeText);
+#     }
+#   }
+#   replaceNodeText.find='Show';
+#   replaceNodeText.replace='Afficher';
+# $('.dataTables_length').contents().each(replaceNodeText);
+#     replaceNodeText.find='entries';
+#   replaceNodeText.replace='indicateurs';",
+# "$('.dataTables_length').contents().each(replaceNodeText);",
+# "$('select.shinyjs-resettable').css({'color':'#333'});",
+# "$('.dataTables_paginate').insertAfter('.dataTables_scroll');",
+# 
+# # A MODIFIER POUR QUE CA MARCHE
+# # "$('th.sorting').parent().after('<tr> `yo` <\tr>')",
+# 
+#   # ".css({'float':'inherit','text-align':'right','vertical-align':'middle'})",
+#   # "$('.form-group.shiny-input-container').children().appendTo('.dataTables_filter')",
+# #MODIFICATION DU TITRE : 
+#   "function setTextContents($elem, text) {",
+#   "  $elem.contents().filter(function() {",
+#   "    if (this.nodeType == Node.TEXT_NODE) {",
+#   "      this.nodeValue = text;",
+#   "    }",
+#   "  });",
+#   "}",
+#   "setTextContents($('.dataTables_filter label'), 'Recherche par mot(s) clef(s)');",
+#   "}")
 
-vars_to_show=c("Base","Indicateur","Famille","Source","Producteur","Fréquence d'actualisation")
+init_vars_to_show=c("Base","Indicateur","Famille","Source","Producteur",
+               "Classement producteur Niveau 3",
+               "Classement producteur Niveau 2","Classement producteur Niveau 1")
 
 
 my_value_boxes <- function(input,output,session,loaded_data,subset_rows){
 observe({
   if (!is.null(subset_rows())){
   my_data=loaded_data()[subset_rows()]#ajustement aux filtres de DT
+  
 }else my_data=loaded_data()#cas de base
   output$nb_indicateurs=renderValueBox({
-    valueBox(value=nrow(my_data),subtitle = "Nombre d'indicateurs",
+    nb=nrow(my_data)
+    valueBox(value=nb,subtitle = ifelse(nb<=1," Indicateur"," Indicateurs"),
              icon = icon("area-chart"),
              color = "green")
   })
   output$nb_bases=renderValueBox({
-    valueBox(value=length(unique(my_data$Base)),subtitle = "Nombre de bases",
+    nb=length(unique(my_data$Base))
+    valueBox(value=nb,subtitle = ifelse(nb<=1," Base"," Bases"),
              icon = icon("diamond"),
              color = "orange")
   })
   output$nb_prod=renderValueBox({
-    valueBox(value=length(unique(my_data$Producteur)),subtitle = "Nombre de producteurs",
+    nb=length(unique(my_data$Producteur))
+    valueBox(value=nb,subtitle = ifelse(nb<=1," Producteur"," Producteurs"),
              icon = icon("group"),
              color = "green")
   })
   output$nb_sources=renderValueBox({
-    valueBox(value=length(unique(my_data$Source)),subtitle = "Nombre de sources",
+    nb=length(unique(my_data$Source))
+    valueBox(value=nb,subtitle = ifelse(nb<=1," Source"," Sources"),
              icon = icon("diamond"),
              color = "orange")
   })
   output$prod_ppal=renderValueBox({
-    valueBox(value=
-               strsplit(my_data$fixed_prod,",")%>%unlist%>%table%>%sort(decreasing=T)%>%head(1)%>%names
+    nm=strsplit(as.character(my_data$fixed_prod),",")%>%unlist%>%table%>%sort(decreasing=T)%>%head(1)%>%names
+    valueBox(value=nm,
                # sapply(prod_acro,function(x)sum(grepl(pattern = x,my_data$Producteur)))%>%sort(decreasing = T)%>%head(1)%>%names
              # IL Y A QQCH A FAIRE AUTOUR DE overflow: auto; https://www.w3schools.com/css/css_align.asp
-             ,subtitle = "Producteur majoritaire",
+              subtitle = "Favori",
              icon = icon("star"),
+             color = "blue")
+    
+  })
+  output$nb_tags=renderValueBox({
+    nm=34
+    valueBox(value=nm,
+             # sapply(prod_acro,function(x)sum(grepl(pattern = x,my_data$Producteur)))%>%sort(decreasing = T)%>%head(1)%>%names
+             # IL Y A QQCH A FAIRE AUTOUR DE overflow: auto; https://www.w3schools.com/css/css_align.asp
+             subtitle = "Tags",
+             icon = icon("dot"),
              color = "blue")
     
   })
@@ -133,7 +180,9 @@ my_value_boxesUI <- function(id) {
     valueBoxOutput(ns("nb_bases"),width = 2),
     valueBoxOutput(ns("nb_prod"),width = 2),
     valueBoxOutput(ns("nb_sources"),width = 2),
-    valueBoxOutput(ns("prod_ppal"),width = 2)
+    valueBoxOutput(ns("prod_ppal"),width = 2),
+    valueBoxOutput(ns("nb_tags"),width = 2)
+    
   )
   return(f)
 }
