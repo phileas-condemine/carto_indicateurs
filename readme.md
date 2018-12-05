@@ -7,35 +7,39 @@ Pour cela nous proposons deux critères d'exploration :
 - des catégories (dits tags). Ces catégories sont générées grâce à un procédé d'automatisation (machine learning), elles peuvent donc être fausses ! N'hésitez pas à faire remonter vos observations et remarques dans les issues de ce repo.
 
 # To do
-- maintenir les en-tête colonne lorsqu'on scrolle
-- ajuster les colonnes trop longues comme nom du producteur avec acronyme... remplacer par acronyme
-- bsToolTip pour qu'on comprenne mieux les inputs
-- bug avec la "recherche par mot clef"
-- persistence de la recherche par mot clef lorsqu'on change les colonnes
-- click sur valuebox
+* ajouter du contenu dans les modalDialog des valuebox.es
+* ajuster les colonnes trop longues comme nom du producteur avec acronyme... remplacer par acronyme
+* chargement de l'app trop long
+* bsToolTip pour qu'on comprenne mieux les inputs
+* bsToolTip pour sache qu'on peut cliquer sur valuebox
+* bsToolTip pour ajouter les tags de l'indicateur aux filtres
 
-- pour la V0.3
-  * [Bug] corriger la colour de la police dans le select length ie nombre d'indicateurs à afficher
-  * [Bug] les boutons des 2 barres fonctionnent mais seule la 2ème barre se màj(répéter la barre de previous-next en haut et en bas)
-  * filtre par selectinput catégorie sur base, fréquence d'actu...
-  * quand on arrive on veut juste un minitext ! On explique la vocation de l'appli, l'organisation d'1 ligne par indicateur. La table en bas c'est quoi ?
-  * doc modaldialog ajouter easyexit ie on quitte en cliquant dans la zone grise.
-  * Quand on clique sur valuebox il ne se passe rien... on veut une  réaction. par exemple si nb bases ou nb prod on affiche la liste des noms. s'il y en a trop on doit afficher qqch d'autre...
+
+- quand on arrive on veut juste un minitext ! On explique la vocation de l'appli, l'organisation d'1 ligne par indicateur. La table en bas c'est quoi ?
+- doc modaldialog ajouter easyexit ie on quitte en cliquant dans la zone grise.
+- Quand on clique sur valuebox il ne se passe rien... on veut une  réaction. par exemple si nb bases ou nb prod on affiche la liste des noms. s'il y en a trop on doit afficher qqch d'autre...
   * valuebox du producteur majoritaire => afficher la fiche du producteur 
   * valuebox du nombre de bases => afficher les noms des bases
   * valuebox du nombre de tags dans la recherche actuelle. => afficher les noms des tags
   * pour les autres valueboxes on affiche quoi ?
-  * aide et github directement sur des liens sur le header, on gagne un clic. on a envie de cliquer sur "référence" mais ce n'est pas un lien.
-  * pourquoi des traits autour des filter="top" => contours du tableau
-  * détourer (contraste de couleurs) toute la zone utile y compris les noms de colonnes
   * changer le curseur sur les lignes du tableau ? mettre une main avec doigt tendu ?
   * dans le modaldialog à côté des tags il faut préciser "ajouter le tag pour affiner ma recherche". Lorsqu'on clique sur la page, quitter automatiquement le modaldialog. supprimer cette fonctionnalité d'ajout de tag ? mettre dans le tableau directement ?
-  * supprimer l'ajout des tags ? remplacer par le bouton de lien vers le site du producteur
-  * dans le modaldialog mettre sur une column et pas 2 mais dans une table avec 2 colonnes [nom : valeur] et rétrecir le modaldialog ! 
-  * enlever filter='top' et ne mettre que selectinput sur les variables à peu de catégories : base, fréq actu...
+
+[A discuter] pourquoi des traits autour des filter="top" => contours du tableau
+[A discuter] détourer (contraste de couleurs) toute la zone utile y compris les noms de colonnes
+[A discuter] supprimer l'ajout des tags ? remplacer par le bouton de lien vers le site du producteur
+[A discuter] dans le modaldialog mettre sur une column et pas 2 mais dans une table avec 2 colonnes [nom : valeur] et rétrecir le modaldialog ! 
 
 # Etat d'avancement
+- [V0.4] 
+  * maintenir les 'en-têtes' des colonnes lorsqu'on scrolle => fixedheaders
+  * bug avec la "recherche par mot clef"
+  * persistence de la recherche par mot clef lorsqu'on change les colonnes https://dev.to/awwsmm/reactive-datatables-in-r-with-persistent-filters-l26
+  * click sur valuebox https://stackoverflow.com/questions/34413137/use-href-infobox-as-actionbutton
+
+  
 - [V0.3]
+  * aide et github directement sur des liens sur le header, on gagne un clic. on a envie de cliquer sur "référence" mais ce n'est pas un lien.
   * [OK] dans la sidebar ou dans le header les barres de recherche text+tag
   * [Non => dans la sidebar aussi] pagination à côté du choix previous-next
 - [V0.2] Implémentation des idées remontées par Antoine Augusti : 

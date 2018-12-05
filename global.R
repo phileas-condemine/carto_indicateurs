@@ -40,6 +40,11 @@ library(markdown)
 # 
 # save(prod_acro,index,file="index_acro.RData")
 
+# default global search value
+if (!exists("default_search")) default_search <- ""
+# default column search values
+if (!exists("default_search_columns")) default_search_columns <- NULL
+
 
 load("index_acro.RData")
 set.seed(1)
@@ -128,46 +133,67 @@ observe({
 }else my_data=loaded_data()#cas de base
   output$nb_indicateurs=renderValueBox({
     nb=nrow(my_data)
-    valueBox(value=nb,subtitle = ifelse(nb<=1," Indicateur"," Indicateurs"),
+    box1<-valueBox(value=nb,subtitle = ifelse(nb<=1," Indicateur"," Indicateurs"),
              icon = icon("area-chart"),
-             color = "green")
+             color = "green",href='#')
+    box1$children[[1]]$attribs$class<-"action-button"
+    box1$children[[1]]$attribs$id<-"valuebox_indicateurs"
+    return(box1)#https://stackoverflow.com/questions/34413137/use-href-infobox-as-actionbutton
+    
   })
   output$nb_bases=renderValueBox({
     nb=length(unique(my_data$Base))
-    valueBox(value=nb,subtitle = ifelse(nb<=1," Base"," Bases"),
+    box1<-valueBox(value=nb,subtitle = ifelse(nb<=1," Base"," Bases"),
              icon = icon("diamond"),
-             color = "orange")
+             color = "orange",href='#')
+    box1$children[[1]]$attribs$class<-"action-button"
+    box1$children[[1]]$attribs$id<-"valuebox_bases"
+    return(box1)#https://stackoverflow.com/questions/34413137/use-href-infobox-as-actionbutton
+    
   })
   output$nb_prod=renderValueBox({
     nb=length(unique(my_data$Producteur))
-    valueBox(value=nb,subtitle = ifelse(nb<=1," Producteur"," Producteurs"),
+    box1<-valueBox(value=nb,subtitle = ifelse(nb<=1," Producteur"," Producteurs"),
              icon = icon("group"),
-             color = "green")
+             color = "green",href='#')
+    box1$children[[1]]$attribs$class<-"action-button"
+    box1$children[[1]]$attribs$id<-"valuebox_producteurs"
+    return(box1)#https://stackoverflow.com/questions/34413137/use-href-infobox-as-actionbutton
+    
   })
+
   output$nb_sources=renderValueBox({
     nb=length(unique(my_data$Source))
-    valueBox(value=nb,subtitle = ifelse(nb<=1," Source"," Sources"),
+    box1<-valueBox(value=nb,subtitle = ifelse(nb<=1," Source"," Sources"),
              icon = icon("diamond"),
-             color = "orange")
+             color = "orange",href='#')
+    box1$children[[1]]$attribs$class<-"action-button"
+    box1$children[[1]]$attribs$id<-"valuebox_sources"
+    return(box1)#https://stackoverflow.com/questions/34413137/use-href-infobox-as-actionbutton
+    
   })
   output$prod_ppal=renderValueBox({
     nm=strsplit(as.character(my_data$fixed_prod),",")%>%unlist%>%table%>%sort(decreasing=T)%>%head(1)%>%names
-    valueBox(value=nm,
-               # sapply(prod_acro,function(x)sum(grepl(pattern = x,my_data$Producteur)))%>%sort(decreasing = T)%>%head(1)%>%names
-             # IL Y A QQCH A FAIRE AUTOUR DE overflow: auto; https://www.w3schools.com/css/css_align.asp
+    box1<-valueBox(value=nm,
               subtitle = "Favori",
              icon = icon("star"),
-             color = "blue")
+             color = "blue",href='#')
+    box1$children[[1]]$attribs$class<-"action-button"
+    box1$children[[1]]$attribs$id<-"valuebox_prod_principal"
+    return(box1)#https://stackoverflow.com/questions/34413137/use-href-infobox-as-actionbutton
     
   })
   output$nb_tags=renderValueBox({
     nm=34
-    valueBox(value=nm,
+    box1<-valueBox(value=nm,
              # sapply(prod_acro,function(x)sum(grepl(pattern = x,my_data$Producteur)))%>%sort(decreasing = T)%>%head(1)%>%names
              # IL Y A QQCH A FAIRE AUTOUR DE overflow: auto; https://www.w3schools.com/css/css_align.asp
              subtitle = "Tags",
              icon = icon("dot"),
-             color = "blue")
+             color = "blue",href='#')
+    box1$children[[1]]$attribs$class<-"action-button"
+    box1$children[[1]]$attribs$id<-"valuebox_nb_tags"
+    return(box1)#https://stackoverflow.com/questions/34413137/use-href-infobox-as-actionbutton
     
   })
   })
@@ -182,7 +208,6 @@ my_value_boxesUI <- function(id) {
     valueBoxOutput(ns("nb_sources"),width = 2),
     valueBoxOutput(ns("prod_ppal"),width = 2),
     valueBoxOutput(ns("nb_tags"),width = 2)
-    
   )
   return(f)
 }

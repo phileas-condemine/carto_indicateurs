@@ -49,7 +49,8 @@ dashboardPage(
   dashboardBody(
     useShinyjs(),
     my_value_boxesUI("valueBoxes"),
-    bsModal(id = 'startupModal', title = 'Application de cartographie des indicateurs de santé', trigger = '',
+    bsModal(id = 'startupModal', title = 'Application de cartographie des indicateurs de santé', 
+            trigger = '',
             size = 'large', HTML("<i>Cette application s'adresse à tout utilisateur désireux d'indentifier des indicateurs de santé parmis les 18,885 indicateurs actuellement recensés.</i><br>
                                  Pour cela nous proposons deux critères d'exploration : 
                                  <ul>
