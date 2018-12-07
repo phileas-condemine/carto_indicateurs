@@ -15,35 +15,11 @@ dashboardPage(
                         href="https://github.com/phileas-condemine/carto_indicateurs")
               )))
               )),
-  # tags$header(class = "main-header"),
-  # dashboardHeader(title = "Indicateurs de Santé V0.2",
-  #                 # dropdownMenu(
-  #                 #   type = "notifications", 
-  #                 #   icon = icon("question-circle"),
-  #                 #   badgeStatus = NULL,
-  #                 #   headerText = "Référence",
-  #                 #   notificationItem("Github", icon = icon("github"),
-  #                 #                    #j'hésite avec icon("sunglasses") icon("console")
-  #                 #                    href = "https://github.com/phileas-condemine/carto_indicateurs"),
-  #                 #   tags$li(id="doc_click",a(tags$i(class = "fa fa-book text-success"), "Doc"))
-  #                 #                     #j'hésite avec icon("sunglasses") icon("console"))
-  #                 #   
-  #                 #   )
-  #                 div(class = "navbar-custom-menu", 
-  #                     tags$ul(class = "nav navbar-nav",
-  #                             tags$li(id="doc_click",a(tags$i(class = "fa fa-book text-success"), "Doc"))))
-  #                 
-  #                 
-  #                 ),
-  dashboardSidebar(#disable = TRUE
+
+  dashboardSidebar(
                    div(class="tagbar",
-                       selectInput(inputId="tag",label = "Recherche par tags",choices = tag_names,multiple=T),
-                       selectInput(inputId="vars_to_show",label="Variables à afficher",selected = init_vars_to_show,choices=names(index),multiple=T)
-                       # ,selectInput(inputId="vars_to_filtrer",label="Utiliser un filtre par variable",selected = NULL,choices=names(index),multiple=T)
-                       #, conditionalPanel("!is.null(input.vars_to_filtrer)",lapply(input$vars_to_filtrer,function(var){
-                       #   modalites=unique(to_plot()[[var]])
-                       #   selectInput(inputId=paste0("filtre_",var),label=var,choices = modalites,selected = NULL,multiple = T)
-                       # }))
+                       selectInput(inputId="tag",label = "Recherche par tags",choices = tag_names,multiple=T)
+                       ,selectInput(inputId="vars_to_show",label="Variables à afficher",selected = init_vars_to_show,choices=names(index),multiple=T)
                                           )
     ),
   dashboardBody(
@@ -59,13 +35,7 @@ dashboardPage(
                                  </ul>
                                  Vous pouvez exporter les résultats de la recherche grâce aux boutons copy/CSV/Excel situés en bas du tableau.<br>
                                  <b> Attention cette application est en cours de développement, ne pas diffuser.")),
-  # extendShinyjs(text = jsCode),
-  # fluidRow(align="center",
-          # div(class="tagbar",
-          #     selectInput(inputId="tag",label = "Recherche par tags",choices = tag_names,multiple=T)
-          #     )
-  # ),
-  
+
 div(class="resultats",style="width:95%;margin-left:20px; margin-right:20px",
       dataTableOutput("DT_to_render")
       )

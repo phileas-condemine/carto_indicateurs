@@ -3,6 +3,9 @@
 #                      launch.browser = F,
 #                      account = "drees",forceUpdate = T
 #                       )
+
+
+options(shiny.reactlog=TRUE) 
 library(dplyr)
 library(data.table)
 library(DT)
@@ -120,9 +123,15 @@ load("data/full_text.RData")
 #   "setTextContents($('.dataTables_filter label'), 'Recherche par mot(s) clef(s)');",
 #   "}")
 
-init_vars_to_show=c("Base","Indicateur","Famille","Source","Producteur",
-               "Classement producteur Niveau 3",
-               "Classement producteur Niveau 2","Classement producteur Niveau 1")
+init_vars_to_show=
+  c("Base","Indicateur",
+    # "Famille",
+    # "Source",
+    "Producteur"
+  # ,"Classement producteur Niveau 3"
+  # ,"Classement producteur Niveau 2"
+  # ,"Classement producteur Niveau 1"
+               )
 
 
 my_value_boxes <- function(input,output,session,loaded_data,subset_rows){

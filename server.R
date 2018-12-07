@@ -3,6 +3,7 @@ function(input,output,session){
   
   
   toggleModal(session, "startupModal", toggle = "open")
+  tags_reac=reactiveVal()
   
   to_plot=reactive({
     recherche=input$tag
@@ -18,6 +19,7 @@ function(input,output,session){
       index_to_keep=tag_pred$index
     }
     my_data=index[index%in%index_to_keep]
+    my_data=droplevels(my_data)
     # print(head(my_data,3))
     return(my_data)
   })
@@ -25,7 +27,7 @@ function(input,output,session){
   
   observe({ 
     to_plot()
-    input$vars_to_show
+    # input$vars_to_show
     print("saving search terms")
     # when it updates, save the search strings so they're not lost
     isolate({
@@ -40,33 +42,46 @@ function(input,output,session){
                                list(global = default_search, columns = default_search_columns))
     })
   })  
-  output$DT_to_render=renderDT(to_plot()[,input$vars_to_show,with=F],
+  output$DT_to_render=renderDT(to_plot()[,input$vars_to_show,with=F]
+                               ,
           filter=list(position = 'top'),
-          extensions = c('Buttons', 'FixedHeader'),
-          options = list(searchHighlight = TRUE,
-                         stateSave = FALSE,
-                         searchCols = default_search_columns,
-                         search = list(regex = FALSE, caseInsensitive = FALSE, search = default_search),
-                         fixedHeader = TRUE,
-                            language = list(
-                              info = 'Résultats _START_ à _END_ sur une liste de _TOTAL_.',
-                              paginate = list(previous = 'Précédent', `next` = 'Suivant')
-                            ),
-                            dom = "lftiprB",#"tirB"
-                            # initComplete = custom_DT,
-                         scrollY=T,
-                            pageLength = 30
-                            ,buttons = c('copy', 'csv', 'excel')
-                            ,columnDefs = list(list(
-                              targets = "_all",#0:(ncol(to_plot())-1),
-                              className = 'dt-center',
-                              render = JS(
-                                "function(data, type, row, meta) {",
-                                "return type === 'display' && data.length > 50 ?",
-                                "'<span title=\"' + data + '\">' + data.substr(0, 50) + '...</span>' : data;",
-                                "}")
-                            ))
-            ),class = "display",selection = 'single',rownames=F
+          extensions = c('Buttons'
+                         ,'ColReorder'
+                         , 'FixedHeader'),
+          options = list(
+             colReorder = TRUE,
+             # COMMENT AFFICHER PAR DEFAUT ?
+             # buttons = I('colvis'),
+             searchHighlight = TRUE,
+             stateSave = FALSE,
+             searchCols = default_search_columns,
+             search = list(regex = FALSE, 
+                           caseInsensitive = FALSE, 
+                           search = default_search),
+             fixedHeader = TRUE,
+             language = list(
+                           info = 'Résultats _START_ à _END_ sur une liste de _TOTAL_.',
+                           paginate = list(previous = 'Précédent', `next` = 'Suivant')),
+             dom = "Bfrtip",# "Blftipr"
+             # initComplete = custom_DT,
+             scrollX=F,
+             pageLength = 50,
+             buttons = c('copy', 'csv', 'excel'),
+             columnDefs = list(#list(targets=(which(!names(index)%in%
+                               #             c("Indicateur","Source","Producteur"))-1)# on compte à partir de 0 en JS
+                               #     ,visible=FALSE)
+                list(
+                   targets = "_all",#0:(ncol(to_plot())-1),
+                   className = 'dt-center',
+                   render = JS(
+                     "function(data, type, row, meta) {",
+                     "return type === 'display' && data.length > 80 ?",
+                     "'<span title=\"' + data + '\">' + data.substr(0, 80) + '...</span>' : data;",
+                     "}")
+                 )
+               )
+            ),
+          class = "display",selection = 'single',rownames=F
           )
   proxy <- dataTableProxy('DT_to_render')
 
