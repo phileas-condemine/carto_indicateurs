@@ -7,7 +7,6 @@ Pour cela nous proposons deux critères d'exploration :
 - des catégories (dits tags). Ces catégories sont générées grâce à un procédé d'automatisation (machine learning), elles peuvent donc être fausses ! N'hésitez pas à faire remonter vos observations et remarques dans les issues de ce repo.
 
 # To do
-* leftsidebar menus déroulant avec tags par thématiques en utilisant shinydashboardPlus
 * column filters devraient ne contenir que les observations restantes, droplevels ?
 * ajouter du contenu dans les modalDialog des valuebox.es
 * ajuster les colonnes trop longues comme nom du producteur avec acronyme... remplacer par acronyme
@@ -38,6 +37,7 @@ Pour cela nous proposons deux critères d'exploration :
   * bug avec la "recherche par mot clef"
   * persistence de la recherche par mot clef lorsqu'on change les colonnes https://dev.to/awwsmm/reactive-datatables-in-r-with-persistent-filters-l26
   * click sur valuebox https://stackoverflow.com/questions/34413137/use-href-infobox-as-actionbutton
+  * [Inutile] leftsidebar menus déroulant avec tags par thématiques en utilisant shinydashboardPlus
 
   
 - [V0.3]

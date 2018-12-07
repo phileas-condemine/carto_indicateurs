@@ -79,6 +79,8 @@ function(input,output,session){
                      "'<span title=\"' + data + '\">' + data.substr(0, 80) + '...</span>' : data;",
                      "}")
                  )
+                # ,
+                #https://datatables.net/forums/discussion/32240/how-to-implement-a-popup-tooltip-on-a-datatables-cell-that-displays-all-data
                )
             ),
           class = "display",selection = 'single',rownames=F
@@ -185,6 +187,22 @@ function(input,output,session){
     }
   })
   
+  addPopover(session,id = "tags_select_bar",title = "Filtrage par thématiques", 
+             options= list(),
+             content = "Vous pouvez sélectionner plusieurs thématiques pour 
+             filtrer les indicateurs.\nVous pouvez également utiliser la barre 
+             de recherche située à droite pour chercher des mots clefs."
+  )
+  addPopover(session,id = "vars_select_bar",title = "Choix des variables", 
+             options= list(),
+             content = "Ce menu vous permet de sélectionner les variables à afficher 
+             dans le tableau central."
+  )
+  addPopover(session,id = "DT_to_render",title = "Indicateurs", 
+             options= list(),placement = "top",
+             content = "Cliquez pour en savoir plus sur cet indicateur"
+  )
+
 }
 
 

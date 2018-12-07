@@ -1,5 +1,5 @@
 dashboardPage(
-  # 
+
   tags$header(class = "main-header", span(class = "logo", "Portail des indicateurs de Santé V0.2"),
               tags$nav(class = "navbar navbar-static-top",
       role = "navigation", span(shiny::icon("bars"), style = "display:none;"),
@@ -14,13 +14,16 @@ dashboardPage(
                       a(tags$i(class = "fa fa-github text-success"),"Code Source", 
                         href="https://github.com/phileas-condemine/carto_indicateurs")
               )))
-              )),
+              ),includeCSS("my_styles.css")),
 
   dashboardSidebar(
-                   div(class="tagbar",
+                   div(id="tags_select_bar",
                        selectInput(inputId="tag",label = "Recherche par tags",choices = tag_names,multiple=T)
-                       ,selectInput(inputId="vars_to_show",label="Variables à afficher",selected = init_vars_to_show,choices=names(index),multiple=T)
-                                          )
+                       ),
+                   div(id="vars_select_bar",
+                       selectInput(inputId="vars_to_show",label="Variables à afficher",selected = init_vars_to_show,choices=names(index),multiple=T)
+                   )
+
     ),
   dashboardBody(
     useShinyjs(),
@@ -37,7 +40,7 @@ dashboardPage(
                                  <b> Attention cette application est en cours de développement, ne pas diffuser.")),
 
 div(class="resultats",style="width:95%;margin-left:20px; margin-right:20px",
-      dataTableOutput("DT_to_render")
+    withSpinner(dataTableOutput("DT_to_render"),size = 2)
       )
   )
 )

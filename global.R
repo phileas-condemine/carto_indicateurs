@@ -16,6 +16,11 @@ library(shinydashboard)
 library(shinyBS)
 library(stringr)
 library(markdown)
+library(shinycssloaders)
+# library(styler)
+# library(shinyAce)
+# library(shinyjqui)
+# library(shinydashboardPlus)
 
 # tags_applied=fread("data/3105_Index des indicateurs tagges.csv",encoding = "Latin-1")
 # 
