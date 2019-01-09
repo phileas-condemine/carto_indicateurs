@@ -145,6 +145,9 @@ observe({
   my_data=loaded_data()[subset_rows()]#ajustement aux filtres de DT
   
 }else my_data=loaded_data()#cas de base
+
+
+
   output$nb_indicateurs=renderValueBox({
     nb=nrow(my_data)
     box1<-valueBox(value=nb,subtitle = ifelse(nb<=1," Indicateur"," Indicateurs"),
@@ -198,12 +201,16 @@ observe({
     
   })
   output$nb_tags=renderValueBox({
-    nm=34
+    nm=tag_pred[index%in%my_data$index,
+                c("tag1","tag2","tag3")]%>%
+      unlist()%>%
+      # {c(.$tag1,.$tag2,.$tag3)}%>%
+      unique()%>%length()
     box1<-valueBox(value=nm,
              # sapply(prod_acro,function(x)sum(grepl(pattern = x,my_data$Producteur)))%>%sort(decreasing = T)%>%head(1)%>%names
              # IL Y A QQCH A FAIRE AUTOUR DE overflow: auto; https://www.w3schools.com/css/css_align.asp
              subtitle = "Tags",
-             icon = icon("dot"),
+             icon = icon("filter"),
              color = "blue",href='#')
     box1$children[[1]]$attribs$class<-"action-button"
     box1$children[[1]]$attribs$id<-"valuebox_nb_tags"
@@ -225,7 +232,6 @@ my_value_boxesUI <- function(id) {
   )
   return(f)
 }
-
 
 
 

@@ -9,7 +9,6 @@ dashboardPage(
           tags$ul(class = "nav navbar-nav",
               tags$li(id="doc_click",
                       a(tags$i(class = "fa fa-book text-success"), "Le projet")),
-              
               tags$li(id="Github",
                       a(tags$i(class = "fa fa-github text-success"),"Code Source", 
                         href="https://github.com/phileas-condemine/carto_indicateurs")
@@ -18,10 +17,16 @@ dashboardPage(
 
   dashboardSidebar(
                    div(id="tags_select_bar",
-                       selectInput(inputId="tag",label = "Recherche par tags",choices = tag_names,multiple=T)
+                       selectInput(inputId="tag",
+                                   label = "Recherche par tags",
+                                   choices = tag_names,
+                                   multiple=T#,selectize=F,size=40
+                                   )
                        ),
                    div(id="vars_select_bar",
-                       selectInput(inputId="vars_to_show",label="Variables à afficher",selected = init_vars_to_show,choices=names(index),multiple=T)
+                       selectInput(inputId="vars_to_show",label="Variables à afficher",
+                                   selected = init_vars_to_show,choices=names(index),multiple=T
+                                   )
                    )
 
     ),

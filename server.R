@@ -77,7 +77,11 @@ function(input,output,session){
                      "function(data, type, row, meta) {",
                      "return type === 'display' && data.length > 80 ?",
                      "'<span title=\"' + data + '\">' + data.substr(0, 80) + '...</span>' : data;",
-                     "}")
+                     "}"
+                     # ,"function(data, type, full) {",
+                     # "<write a tool tip or alert> blabla < all your data is in full variable>",
+                     # "}"
+                     )
                  )
                 # ,
                 #https://datatables.net/forums/discussion/32240/how-to-implement-a-popup-tooltip-on-a-datatables-cell-that-displays-all-data
@@ -177,31 +181,40 @@ function(input,output,session){
     currently_selected=input$tag
     new_selection=c(currently_selected,tags_reac()[tags_clicked])
     if(length(tags_clicked)>0){
-      removeUI(selector = ".shiny-input-container",multiple = F,session = session,immediate = F)
-      insertUI(session = session,selector = ".tagbar",where = "beforeBegin",ui=selectInput(inputId = "tag",
+      removeUI(selector = ".shiny-input-container",multiple = F,session = session,immediate = T)
+      insertUI(session = session,selector = "#tags_select_bar",where = "afterBegin",ui=selectInput(inputId = "tag",
                       label = "Recherche par tags",choices = tag_names,
                       selected = new_selection,multiple = T),multiple = F,immediate = F)
+      
       showNotification(sprintf(ifelse(length(tags_reac()[tags_clicked])==1,
                                       "Le tag %s vient d'être ajouté","Les tags %s viennent d'être ajoutés"),
                                paste(tags_reac()[tags_clicked],collapse=", ")),type = "message",id="add_tag")
     }
   })
   
-  addPopover(session,id = "tags_select_bar",title = "Filtrage par thématiques", 
-             options= list(),
+  addPopover(session,id = "tags_select_bar",title = "Filtrage par thématiques",placement="right",
+             options= list(container = "body"),
              content = "Vous pouvez sélectionner plusieurs thématiques pour 
              filtrer les indicateurs.\nVous pouvez également utiliser la barre 
              de recherche située à droite pour chercher des mots clefs."
   )
-  addPopover(session,id = "vars_select_bar",title = "Choix des variables", 
-             options= list(),
+  addPopover(session,id = "vars_select_bar",title = "Choix des variables", placement="right",
+             options= list(container = "body"),
              content = "Ce menu vous permet de sélectionner les variables à afficher 
              dans le tableau central."
   )
-  addPopover(session,id = "DT_to_render",title = "Indicateurs", 
-             options= list(),placement = "top",
-             content = "Cliquez pour en savoir plus sur cet indicateur"
-  )
+  # addPopover(session,id = "vars_select_bar",title = "Choix des variables", placement="right",
+  #            options= list(container = "body"),
+  #            content = "Ce menu vous permet de sélectionner les variables à afficher 
+  #            dans le tableau central."
+  # )
+  
+  # dataTables_filter
+  
+  # addPopover(session,id = "DT_to_render",title = "Indicateurs", 
+  #            options= list(),placement = "top",
+  #            content = "Cliquez pour en savoir plus sur cet indicateur"
+  # )
 
 }
 
