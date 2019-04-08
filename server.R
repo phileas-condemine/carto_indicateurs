@@ -108,12 +108,35 @@ function(input,output,session){
     print("sans filtres")
     callModule(module = my_value_boxes,id="valueBoxes",
                to_plot,reactive(NULL))
+    
+    
+    
     NULL
     }
           })
   proxy <- dataTableProxy('DT_to_render')
 
-  observeEvent(input$DT_to_render_rows_all,{
+  observeEvent(length(input$tag)==0,{
+    if(length(input$tag)==0){
+    # isolate({
+
+    removeUI(selector = "#tag_div",immediate = T,session=session)
+    insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
+             ui = div(id="tag_div",class="col-sm-6 inbody_selector",
+                      selectizeInput(inputId="tag",
+                                     label = "Recherche par tags",
+                                     choices = tags_class_list,#selectize = F,size = length(tag_names)+5,
+                                     multiple=T,
+                                     options = list(placeholder = sprintf('Ajoutez un filtre en choisissant parmi les %s thématiques liées à la santé',length(unlist(tags_class_list))))
+                      )%>%shinyInput_label_embed(
+                        icon("question-circle") %>%
+                          bs_embed_tooltip(title = "Choisissez une ou plusieurs thématique(s) de votre choix pour commencer à explorer le catalogue des indicateurs. Sinon vous pouvez également utiliser la recherche par mot-clef.")
+                      )))
+    # })
+    }
+  })
+  
+  observeEvent(c(input$DT_to_render_rows_all),{
     print("check_subset_rows")
     # if(is.null(input$DT_to_render_rows_all)){
       # print("module on full data")
@@ -129,7 +152,7 @@ function(input,output,session){
       sub_index=to_plot()[input$DT_to_render_rows_all]$index
       print("sub_index")
       print(head(sub_index))
-    if(length(input$search_keywords)>0){
+    if(length(input$search_keywords)>0|length(input$tag)>0){
       # sub_indexes=full_text_split[word%in%input$search_keywords,
                                 # list(nb=uniqueN(word)),by="index"]
       # sub_indexes=unique(sub_indexes[nb==length(input$search_keywords)]$index)
@@ -139,7 +162,7 @@ function(input,output,session){
     }
     term_freq=term_freq[!word%in%stopwords_vec]
     setorder(term_freq,-freq)
-    print("premières mots clés proposés")
+    print("premiers mots clés proposés")
     print(head(term_freq$word))
     print("recherche")
     print(input$search_keywords)
@@ -151,28 +174,36 @@ function(input,output,session){
                               label = "Recherche par mot(s) clef(s)",
                               selected = currently_selected_keywords,
                               choices = term_freq$word,
-                              multiple=T,options = list(placeholder = 'ald, précarité, dépenses...')
+                              multiple=T
+             )%>%shinyInput_label_embed(
+               icon("question-circle") %>%
+                 bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs.")
              )))
     
-    sub_tags=tag_pred[index%in%sub_index,
-             c("tag1","tag2","tag3")]%>%
+        sub_tags=tag_pred[index%in%sub_index,
+                      c("tag1","tag2","tag3")]%>%
       unlist()%>%
       # {c(.$tag1,.$tag2,.$tag3)}%>%
       unique()
-    sub_tags_class_list=lapply(tags_class_list,function(x)x[x%in%sub_tags])
     
     currently_selected_tags=input$tag
+    if(length(currently_selected_tags)>0){
+      sub_tags_class_list=lapply(tags_class_list,function(x)x[x%in%sub_tags])
+    } else {
+      sub_tags_class_list=tags_class_list
+    }
     removeUI(selector = "#tag_div",immediate = T,session=session)
     insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
              ui = div(id="tag_div",class="col-sm-6 inbody_selector",
-                  selectizeInput(inputId="tag",
-                                 label = "Recherche par tags",
-                                 selected = currently_selected_tags,
-                                 choices = sub_tags_class_list,#selectize = F,size = length(tag_names)+5,
-                                 multiple=T,
-                                 options = list(placeholder = sprintf('choix parmi les %s tags',length(sub_tags)))
-                  )))
-
+                      selectizeInput(inputId="tag",
+                                     label = "Recherche par tags",
+                                     selected = currently_selected_tags,
+                                     choices = sub_tags_class_list,#selectize = F,size = length(tag_names)+5,
+                                     multiple=T)%>%shinyInput_label_embed(
+                                       icon("question-circle") %>%
+                                         bs_embed_tooltip(title = "Choisissez une ou plusieurs thématique(s) de votre choix pour commencer à explorer le catalogue des indicateurs. Sinon vous pouvez également utiliser la recherche par mot-clef.")
+                                     )))
+    
     print("recherche update")
     print(input$search_keywords)
     # AJOUT PAGE D'ACCUEIL AVEC BARRE DE RECHERCHE 
@@ -190,8 +221,9 @@ function(input,output,session){
 
     # print("module for valueboxes")
     #  callModule(module = my_value_boxes,id="valueBoxes",to_plot,reactive(input$DT_to_render_rows_all))
-    })  
-     })
+      })
+
+    })
   
 
   onclick("doc_click",{

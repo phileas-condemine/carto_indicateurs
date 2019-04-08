@@ -24,7 +24,10 @@ dashboardPage(
                         target="_blank"))
               ))),
       includeCSS("www/my_styles.css"),
-      includeHTML('www/cookie_handler.html')
+      includeHTML('www/cookie_handler.html'),
+      includeScript("hide_when_loading.js")
+      
+      
       
       ),
 
@@ -72,18 +75,21 @@ dashboardPage(
                   selectizeInput(inputId="tag",
                                         label = "Recherche par tags",#selected = ,
                                         choices = tags_class_list,#selectize = F,size = length(tag_names)+5,
-                                        multiple=T,options = list(placeholder = 'choix parmi les 32 tags')
+                                        multiple=T,options = list(placeholder = sprintf('Ajoutez un filtre en choisissant parmi les %s thématiques liées à la santé',length(unlist(tags_class_list))))
+                           )%>%shinyInput_label_embed(
+                             icon("question-circle") %>%
+                               bs_embed_tooltip(title = "Choisissez une ou plusieurs thématique(s) de votre choix pour commencer à explorer le catalogue des indicateurs. Sinon vous pouvez également utiliser la recherche par mot-clef.")
                            )),
                div(id="search_keywords_div",class="col-sm-6 inbody_selector",
                    selectizeInput(inputId="search_keywords",
                               label = "Recherche par mot(s) clef(s)",
                               choices = term_freq_global$word,
-                              multiple=T,options = list(placeholder = 'ald, précarité, dépenses...')
+                              multiple=T,options = list(placeholder = 'ald, précarité, dépenses, handicap...')
+                           )%>%shinyInput_label_embed(
+                             icon("question-circle") %>%
+                               bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs. Les mots-clefs sont triés par fréquence.")
                            )),
-          # withSpinner(
-            div(id="placeholder_datatable",dataTableOutput("DT_to_render"))
-            # ,size = 2)
-          ),
+            div(id="placeholder_datatable",dataTableOutput("DT_to_render"))),
           includeHTML("footer_catalogue.html"))
   )
 
