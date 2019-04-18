@@ -1,0 +1,90 @@
+<link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.css" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.js"></script>
+<script>
+window.addEventListener("load", function () {
+window.cookieconsent.initialise({
+container: document.getElementById("content"),
+"palette": {
+"popup": {
+"background": "#0253a3"
+},
+"button": {
+"background": "#ffffff",
+"text" : "#0253a3"
+}
+},
+"showLink": false,
+"revokable": true,
+"autoOpen":true,
+"type": "opt-out",
+"content": {
+"message" : "Acceptez-vous l\'utilisation de cookies pour la réalisation de statistiques de fréquentation du site ?",
+"dismiss": "J\'accepte !",
+"deny": "Je refuse."
+},
+
+onInitialise: function (status) {
+var type = this.options.type;
+var didConsent = this.hasConsented();
+
+if (type == "opt-out" && !didConsent) {
+gaOptout();
+
+if (this.options.revokable) {
+
+setTimeout(function () {
+document.getElementsByClassName("cc-revoke")[0].style.display = "block";
+});
+}
+}
+},
+onStatusChange: function (status, chosenBefore) {
+var type = this.options.type;
+
+var didConsent = this.hasConsented();
+
+if (type == "opt-out" && !didConsent) {
+gaOptout();
+}
+if (type == "opt-out" && didConsent) {
+//enable cookies
+enablecookies();
+}
+
+}
+
+});
+});
+
+
+</script>
+<script>
+// Set to the same value as the web property used on the site
+var gaProperty = "UA-119893698-1";
+
+// Disable tracking if the opt-out cookie exists.
+var disableStr = "ga-disable-" + gaProperty;
+if (document.cookie.indexOf(disableStr + "=true") > -1) {
+window[disableStr] = true;
+}
+// console.log(document.cookie);
+// Opt-out function
+function gaOptout() {
+document.cookie = disableStr + "=true; expires=Thu, 31 Dec 2099 23:59:59 UTC; path=/";
+window[disableStr] = true;
+
+// console.log(document.cookie);
+}
+
+function enablecookies() {
+
+window.dataLayer = window.dataLayer || [];
+function gtag() {
+dataLayer.push(arguments)
+}
+
+gtag("js", new Date());
+gtag("config", "UA-119893698-1", { "anonymize_ip": true });
+window[disableStr] = false;
+}
+</script>

@@ -1,0 +1,96 @@
+.popover{color:#000;}
+#valueBoxes-nb_tags{padding:3px;}
+#valueBoxes-nb_indicateurs{padding:3px;}
+#valueBoxes-nb_bases{padding:3px;}
+#valueBoxes-nb_prod{padding:3px;}
+#valueBoxes-nb_sources {padding:3px;}
+#valueBoxes-prod_ppal{padding:3px;}
+
+.shiny-output-error { visibility: hidden; }
+.shiny-output-error:before {
+  visibility: visible;
+  content: "L'application a rencontré une erreur. Contacter l'administrateur via un issue sur le site github du projet."; 
+}
+
+.icon_drees {
+    background: url('drees_icon.png');
+    height: 20px;
+    width: 22px;
+    
+    /* Other styles here */
+}
+
+.vert_center {
+  vertical-align: middle;
+}
+
+.icon_ministere {
+    background: url('mss_icon.jpg');
+    height: 20px;
+    width: 21px;
+    /* Other styles here */
+}
+
+.icon_github {
+    background: url('github_icon.png');
+    height: 20px;
+    width: 20px;
+    /* Other styles here */
+}
+
+.icon_carto {
+    background: url('carto_icon.png');
+    height: 20px;
+    width: 20px;
+    /* Other styles here */
+}
+
+.drees_footer{
+  background: #0253a3;
+  background-size: contain;
+  width:100%;
+  height:100%;
+  margin-bottom: 0px;
+}
+
+
+
+img {
+    display: block;
+    max-height: 100%;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+
+}
+
+
+#sidebarCollapsed {
+    background: #0253a3;
+}
+
+#DT_to_render{
+  margin-bottom: 50px;
+}
+
+.shiny-input-container:not(.shiny-input-container-inline) {
+  width: 100%;
+  max-width: 100%;
+}
+
+.content , .col-sm-12 , .row {
+  padding-right:0;
+  padding-left:0;
+  margin-right:0;
+  margin-left:0;
+}
+
+.selectize-input{
+  padding-top:12px;
+  padding-bottom:12px;
+}
+
+.selectize-control.multi .selectize-input.has-items{
+  padding-top:10px;
+  padding-bottom:10px;
+}

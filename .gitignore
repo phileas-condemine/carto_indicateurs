@@ -1,0 +1,14 @@
+.Rproj.user/
+rsconnect/
+old-15janvier2019/
+synonymes/
+test/
+www_old/
+*.xlsx
+my_token.RData
+tweet_history/
+.Rhistory
+global_debug.R
+ui_debug.R
+server_debug.R
+utils/

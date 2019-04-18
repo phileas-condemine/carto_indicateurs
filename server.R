@@ -1,60 +1,55 @@
 function(input,output,session){
-  
-  
-  js$move_navpills()
-  
+
+
+  # js$move_navpills()
+
   # toggleModal(session, "startupModal", toggle = "open")
   tags_reac=reactiveVal()
-  
+
   to_plot=reactive({
     recherche=input$tag
-    print("my search")
-    print(recherche)
     if (!is.null(recherche)){
-      print("do search")
       which_to_keep=rowSums(data.table(tag_pred$tag1%in%recherche,
                                        tag_pred$tag2%in%recherche,
                                        tag_pred$tag3%in%recherche))==length(recherche)
       index_to_keep=tag_pred[which_to_keep]$index
     } else {
-      print("no search")
       index_to_keep=tag_pred$index
     }
     my_data=index[index%in%index_to_keep]
     my_data=droplevels(my_data)
-    # print(head(my_data,2))
     return(my_data)
   })
 
-  
-  # observe({ 
+
+  # observe({
   #   req(proxy)
   #   to_plot()
   #   # input$vars_to_show
-  #   print("saving search terms")
-  #   print(paste(input$search_keywords,collapse=" "))
   #   proxy %>% updateSearch(keywords = list(global = paste(input$search_keywords,collapse=" ")))
   #   # when it updates, save the search strings so they're not lost
   #   # isolate({
-  #   #   
+  #   #
   #   #   # update global search and column search strings
   #   #   default_search <- input$search_keywords
   #   #   default_search_columns <- c("", input$DT_to_render_search_columns)
-  #   #   
-  #   #   print("fix search terms")
+  #   #
   #   #   # update the search terms on the proxy table (see below)
   #   #   proxy %>% updateSearch(keywords =
-  #   #        list(global = input$search_keywords, 
+  #   #        list(global = input$search_keywords,
   #   #             columns = default_search_columns))
   #   # })
-  # })  
+  # })
   output$DT_to_render=renderDT({
-    print(paste("create renderDT avec tag : ",paste(input$tag,collapse=" "),
-                "et avec mots clef",paste(input$search_keywords,collapse=" ")))
+    print(input$search_keywords)
     if(length(input$tag)>0|length(input$search_keywords)>0){
-      print("avec filtres")
-    my_datatable=datatable(to_plot()[,input$vars_to_show,with=F],
-          # filter=list(position = 'top'),
+      # print(Encoding(input$search_keywords))
+      # print(Encoding(enc2native(input$search_keywords)))
+
+      # print(table(unlist(lapply(to_plot()[,input$vars_to_show,with=F]%>%mutate_all(as.character),Encoding))))
+
+      # print(paste(enc2native(input$search_keywords),collapse=" "))
+      my_datatable=datatable(to_plot()[,input$vars_to_show,with=F],
           extensions = c('Buttons'
                          ,'ColReorder'
                          , 'FixedHeader'),
@@ -65,52 +60,49 @@ function(input,output,session){
              searchCols = default_search_columns,
              search = list(regex = FALSE,
                            caseInsensitive = TRUE,
-                           search = paste(input$search_keywords,collapse=" ")),
+                           search = enc2native(paste(input$search_keywords,collapse=" "))),
              fixedHeader = TRUE,
              language = list(
                            info = 'Résultats _START_ à _END_ sur une liste de _TOTAL_.',
                            paginate = list(previous = 'Précédent', `next` = 'Suivant')),
              dom = "tBfrip",# "Blftipr"
-             initComplete = JS(readLines("custom_DT.js")),#custom_DT,
+             initComplete = JS(readLines("www/custom_DT.js")),#custom_DT,
              scrollX=F,
              pageLength = 50,
-             buttons = list(list(extend = "copy", 
+             buttons = list(list(extend = "copy",
                                  text = "Copier"),
-                            list(extend = "csv", 
+                            list(extend = "csv",
                                  text = "Format CSV"),
-                            list(extend = "excel", 
+                            list(extend = "excel",
                                  text = "Format Excel")),#c('copy', 'csv', 'excel'),
 
              columnDefs = list(
                 list(
                    targets = "_all",
                    className = 'dt-center',
-                   render = JS(
+                   render =
+                     # JS(readLines("www/render_customized.js", warn = FALSE))
+                     JS(
                      "function(data, type, row, meta) {",
                      "return type === 'display' && data.length > 80 ?",
                      "'<span title=\"' + data + '\">' + data.substr(0, 80) + '...</span>' : data;",
                      "}"
-                     # ,"function(data, type, full) {",
-                     # "<write a tool tip or alert> blabla < all your data is in full variable>",
-                     # "}"
                      )
                  )
                 # ,
                 #https://datatables.net/forums/discussion/32240/how-to-implement-a-popup-tooltip-on-a-datatables-cell-that-displays-all-data
                )
             ),
-          class = "display",selection = 'single',rownames=F)
-      print("module for valueboxes")
+          class = "display hover",selection = 'none',rownames=F)
       callModule(module = my_value_boxes,id="valueBoxes",
                  to_plot,reactive(input$DT_to_render_rows_all))
       my_datatable
   }else {
-    print("sans filtres")
     callModule(module = my_value_boxes,id="valueBoxes",
                to_plot,reactive(NULL))
-    
-    
-    
+
+
+
     NULL
     }
           })
@@ -135,23 +127,19 @@ function(input,output,session){
     # })
     }
   })
-  
+
   observeEvent(c(input$DT_to_render_rows_all),{
-    print("check_subset_rows")
     # if(is.null(input$DT_to_render_rows_all)){
-      # print("module on full data")
       # callModule(module = my_value_boxes,id="valueBoxes",
                  # to_plot,NULL)
-      
+
     # }
     # req(input$DT_to_render_rows_all)
     # req(to_plot())
     isolate({
-      
-      
+
+
       sub_index=to_plot()[input$DT_to_render_rows_all]$index
-      print("sub_index")
-      print(head(sub_index))
     if(length(input$search_keywords)>0|length(input$tag)>0){
       # sub_indexes=full_text_split[word%in%input$search_keywords,
                                 # list(nb=uniqueN(word)),by="index"]
@@ -162,10 +150,6 @@ function(input,output,session){
     }
     term_freq=term_freq[!word%in%stopwords_vec]
     setorder(term_freq,-freq)
-    print("premiers mots clés proposés")
-    print(head(term_freq$word))
-    print("recherche")
-    print(input$search_keywords)
     currently_selected_keywords=input$search_keywords
     removeUI(selector = "#search_keywords_div",immediate = T,session=session)
     insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
@@ -174,18 +158,18 @@ function(input,output,session){
                               label = "Recherche par mot(s) clef(s)",
                               selected = currently_selected_keywords,
                               choices = term_freq$word,
-                              multiple=T
+                              multiple=T,options = list(placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...')
              )%>%shinyInput_label_embed(
                icon("question-circle") %>%
                  bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs.")
              )))
-    
+
         sub_tags=tag_pred[index%in%sub_index,
                       c("tag1","tag2","tag3")]%>%
       unlist()%>%
       # {c(.$tag1,.$tag2,.$tag3)}%>%
       unique()
-    
+
     currently_selected_tags=input$tag
     if(length(currently_selected_tags)>0){
       sub_tags_class_list=lapply(tags_class_list,function(x)x[x%in%sub_tags])
@@ -203,28 +187,22 @@ function(input,output,session){
                                        icon("question-circle") %>%
                                          bs_embed_tooltip(title = "Choisissez une ou plusieurs thématique(s) de votre choix pour commencer à explorer le catalogue des indicateurs. Sinon vous pouvez également utiliser la recherche par mot-clef.")
                                      )))
-    
-    print("recherche update")
-    print(input$search_keywords)
-    # AJOUT PAGE D'ACCUEIL AVEC BARRE DE RECHERCHE 
-    # ET MENU DEROULANT 4 THEMATIQUES 
+
+    # AJOUT PAGE D'ACCUEIL AVEC BARRE DE RECHERCHE
+    # ET MENU DEROULANT 4 THEMATIQUES
     # OU TOP 10 TAG et ... afficher plus
     # pour la page "à propos/info" ajouter un carousel avec les logos/icons des producteurs
-    
-    
+
+
     # sub_tag_pred=tag_pred[index%in%sub_index]
     # sub_tags=unique(sub_tag_pred$tag1,sub_tag_pred$tag2,sub_tag_pred$tag3)
     # updateSelectizeInput(inputId="tag",selected = input$tag,
     #                      session=session,choices = sub_tags)
-    # print("recherche actualisée")
-    # print(input$search_keywords)
-
-    # print("module for valueboxes")
     #  callModule(module = my_value_boxes,id="valueBoxes",to_plot,reactive(input$DT_to_render_rows_all))
       })
 
     })
-  
+
 
   onclick("doc_click",{
     showModal(modalDialog(title="Portail des indicateurs",easyClose = T,
@@ -260,18 +238,17 @@ function(input,output,session){
         tags$div(id="modal_prod_principal",
                  HTML(paste("Un bon endroit pour afficher des informations complémentaire sur le producteur principal")))
     ))
-  })  
+  })
   onclick("valuebox_nb_tags",{
     showModal(modalDialog(title="Informations sur le nombre de tags représentés",easyClose = T,size = "m",fade = T,
                           tags$div(id="modal_nb_tags",
                                    HTML(paste("Un bon endroit pour afficher des informations complémentaire")))
     ))
   })
-  
+
   observeEvent(input$DT_to_render_cell_clicked,{
     req(input$DT_to_render_cell_clicked)
     if(length(input$DT_to_render_cell_clicked)>0){
-    print("cell clicked")
     clicked=input$DT_to_render_cell_clicked
     row_clicked=clicked$row
     content=to_plot()[row_clicked]
@@ -301,14 +278,13 @@ function(input,output,session){
           actionButton("tag1",label = content_tags$tag1),
           actionButton("tag2",label = content_tags$tag2),
           actionButton("tag3",label = content_tags$tag3)
-          
+
          )
       ,easyClose =T,size="l"))
     }
-  })  
+  })
   observeEvent(c(input$tag1,input$tag2,input$tag3),{
     # Ajout de filtres par tagg depuis le menu de l'indicateur
-    print("add tag")
     tags_clicked=c(input$tag1%%2,input$tag2%%2,input$tag3%%2)
     tags_clicked=which(tags_clicked==1)
     currently_selected=input$tag
@@ -320,51 +296,53 @@ function(input,output,session){
       #          ui=selectInput(inputId = "tag",
       #                 label = "Recherche par tags",choices = tag_names,
       #                 selected = new_selection,multiple = T),immediate = F)
-      
+
       showNotification(sprintf(ifelse(length(tags_reac()[tags_clicked])==1,
                                       "Le tag %s vient d'être ajouté","Les tags %s viennent d'être ajoutés"),
                                paste(tags_reac()[tags_clicked],collapse=", ")),type = "message",id="add_tag")
     }
   })
-  
+
   addPopover(session,id = "tags_select_bar",title = "Filtrage par thématiques",placement="right",
              options= list(container = "body"),
-             content = "Vous pouvez sélectionner plusieurs thématiques pour 
-             filtrer les indicateurs.\nVous pouvez également utiliser la barre 
+             content = "Vous pouvez sélectionner plusieurs thématiques pour
+             filtrer les indicateurs.\nVous pouvez également utiliser la barre
              de recherche située à droite pour chercher des mots clefs"
   )
   addPopover(session,id = "vars_select_bar",title = "Choix des variables", placement="right",
              options= list(container = "body"),
-             content = "Ce menu vous permet de sélectionner les variables à afficher 
+             content = "Ce menu vous permet de sélectionner les variables à afficher
              dans le tableau central"
   )
-  
-  addPopover(session,id = "DataTables_Table_0_filter",title = "Recherche par mots clés", 
+
+  addPopover(session,id = "DataTables_Table_0_filter",title = "Recherche par mots clés",
              placement="left",# options= list(container = "body"),
-             content = 'Filtrer les indicateurs par mots clés, 
+             content = 'Filtrer les indicateurs par mots clés,
              par exemple en écrivant "DREES"'
   )
   # addPopover(session,id = "vars_select_bar",title = "Choix des variables", placement="right",
   #            options= list(container = "body"),
-  #            content = "Ce menu vous permet de sélectionner les variables à afficher 
+  #            content = "Ce menu vous permet de sélectionner les variables à afficher
   #            dans le tableau central."
   # )
-  
+
   # dataTables_filter
-  
-  # addPopover(session,id = "DT_to_render",title = "Indicateurs", 
+
+  # addPopover(session,id = "DT_to_render",title = "Indicateurs",
   #            options= list(),placement = "top",
   #            content = "Cliquez pour en savoir plus sur cet indicateur"
   # )
-  
+
   # https://stackoverflow.com/questions/41351199/how-to-code-a-sidebar-collapse-in-shiny-to-show-only-icons
   runjs({'
         var el2 = document.querySelector(".skin-blue");
-    el2.className = "skin-blue sidebar-mini";
-    var clicker = document.querySelector(".sidebar-toggle");
-    clicker.id = "switchState";
+        el2.className = "skin-blue sidebar-mini";
+        var clicker = document.querySelector(".sidebar-toggle");
+        clicker.id = "switchState";
     '})
-  
+
+
+
   onclick('switchState', runjs({'
     var title = document.querySelector(".logo")
     if (title.style.visibility == "hidden") {
@@ -373,8 +351,6 @@ function(input,output,session){
     title.style.visibility = "hidden";*/
     }
     '}))
-  
-  
+
+
 }
-
-
