@@ -34,23 +34,6 @@ dashboardPage(
   dashboardSidebar(collapsed = F,
                    sidebarMenu(id="sidebarmenu",
                                menuItem(text = "Les indicateurs",icon = shiny::icon("search"),tabName="catalogue"),
-                               # div(id="tags_select_bar",
-                               # tags$i(class="fa fa-gears"),
-                               #     selectizeInput(inputId="tag",
-                               #                 label = "Recherche par tags",#selected = ,
-                               #                  choices = tags_class_list,#selectize = F,size = length(tag_names)+5,
-                               #                 multiple=T
-                               #     ),#https://stackoverflow.com/questions/49723322/how-to-bookmark-a-shiny-selectizeinput-with-dynamic-options
-                               #     # searchInput(inputId = "search_keywords",label = "Recherche par mot(s) clef(s)",
-                               #     #             placeholder = "Ecrivez puis appuyez sur Entrée",btnSearch= icon("search")),
-                               # # div(id="vars_select_bar",
-                               # selectizeInput(inputId="search_keywords",
-                               #                label = "Recherche par mot(s) clef(s)",#selected = ,
-                               #                choices = "",#vide par défaut
-                               #                #selectize = F,size = length(tag_names)+5,
-                               #                multiple=T
-                               # ),
-
 
                                menuItem("Accueil",icon = shiny::icon("home"),tabName="Accueil"),
 
@@ -61,10 +44,7 @@ dashboardPage(
                    # ,tags$img(src="Logo_Drees.jpg")
       ),
   dashboardBody(
-    # useShinyjs(),
-    # extendShinyjs(script = "jsCode.js"),
-    # navlistPanel(id="dashboard_body",selected = "catalogue",widths = c(4,12),
-      # tabPanel(title="Accueil",value = "accueil",
+
     tabItems(
              tabItem(tabName = "Accueil",
           includeHTML("www/accueil.html"),
@@ -72,7 +52,6 @@ dashboardPage(
           ,includeHTML("www/footer_accueil.html")
     ),
 
-      # tabPanel(title="Catalogue",value = "catalogue",
     tabItem(tabName = "catalogue",
 
           my_value_boxesUI("valueBoxes"),

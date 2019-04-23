@@ -1,9 +1,3 @@
-# rsconnect::deployApp(appFileManifest = "manifest.txt",
-#                      appName = "Cartographie_des_indicateurs",
-#                      launch.browser = F,
-#                      account = "drees",forceUpdate = T
-#                       )
-
 # options(shiny.reactlog=TRUE)
 library(dplyr)
 library(data.table)
@@ -18,77 +12,9 @@ library(stringr)
 library(markdown)
 library(shinycssloaders)
 library(bsplus)
-# library(styler)
-# library(shinyAce)
-# library(shinyjqui)
-# library(shinydashboardPlus)
 
 ############# DATA PREP #############
-# tags_applied=fread("data/3105_Index des indicateurs tagges.csv",encoding = "Latin-1")
-#
-#
-# index=fread("data/29032018_Index2.csv",encoding = "Latin-1")
-#
-# fixed_prod=unlist(pbapply::pblapply(strsplit(index$Producteur,","),
-#                   function(x)paste(lapply(x,function(y){
-#   xtrct=str_extract(y,pattern = "(\\()(([A-z]|é|è|Î|à| |\\-)+)(\\))")
-#   xtrct=gsub("\\(","",xtrct)
-#   xtrct=gsub("\\)","",xtrct)
-#   ifelse(is.na(xtrct),y,xtrct)
-# }),collapse=",")))
-#
-# table(fixed_prod)
-# index$fixed_prod=fixed_prod
-#
-# producteurs=unique(unlist(strsplit(index$Producteur,",")))
-# producteurs_acronymes=str_extract(string = producteurs,pattern = "(\\()([A-z]+)(\\))")
-# producteurs_acronymes=gsub("\\(","",producteurs_acronymes)
-# producteurs_acronymes=gsub("\\)","",producteurs_acronymes)
-# Producteurs=data.table(Producteur=producteurs,Producteur_acronyme=producteurs_acronymes)
-# Producteurs[is.na(Producteur_acronyme),Producteur_acronyme:=Producteur]
-# prod_acro=unique(Producteurs$Producteur_acronyme)
-# set.seed(1)
-# index=index[,-1]
-#
-# names(index) <- enc2utf8(names(index))
-# table(index$Producteur)
-# index=index%>%mutate_if(is.character,factor)%>%data.table
-# index$random_order=sample(nrow(index))
-# setorder(index,random_order)
-# load("data/indicateurs_a_tagger.RData")
-# tag_pred=indicateurs_pred[,c("indic_id","tag1","tag2","tag3"),with=F]
-# setnames(tag_pred,"indic_id","index")
-# tag_names=unique(c(as.character(tag_pred$tag1),
-#          as.character(tag_pred$tag2),
-#          as.character(tag_pred$tag3)))
-# tags_class=fread("data/classif_tags.csv")
-# tags_class$alias=iconv(tags_class$alias,to="UTF-8")
-# tags_class_vec=c(tags_class$valeur)
-# names(tags_class_vec) <- tags_class$alias
-#
-# loc_sep=which(tags_class_vec=="")
-# loc_sep=c(loc_sep,"END"=nrow(tags_class)+1)
-# size_classes=diff(loc_sep)-1
-# names(size_classes)<- names(loc_sep)[1:(length(loc_sep)-1)]
-# class_for_split=rep.int(names(size_classes),size_classes)
-# tags_class_vec=tags_class_vec[!tags_class_vec==""]
-# tags_class_list=split(tags_class_vec,class_for_split)
-#
-# tag_pred$tag1=as.character(tag_pred$tag1)
-# tag_pred$tag2=as.character(tag_pred$tag2)
-# tag_pred$tag3=as.character(tag_pred$tag3)
-#
-# for (i in which(sapply(index,is.factor))){
-#   print(i)
-#   table(Encoding(levels(index[[i]])))
-#   levels(index[[i]]) <- iconv(levels(index[[i]]),"latin1","UTF-8")
-#   index[[i]] <- as.character(index[[i]])
-#   index[[i]] <- enc2native(index[[i]])
-#   table(Encoding(index[[i]]))
-#
-# }
-
-# save(tag_pred,prod_acro,index,tags_class_list,tag_names,file="data/init_data.RData")
+# source("utils/data_prep.R",local = T)
 ############
 
 # default global search value
@@ -103,8 +29,7 @@ setorder(index,random_order)
 
 source_readme="https://raw.githubusercontent.com/phileas-condemine/carto_indicateurs/master/readme.md"
 
-# full_text=pbapply::pbapply(index,1,paste,collapse=" ")
-# save(full_text,file="data/full_text.RData")
+
 load("data/full_text.RData")
 # table(Encoding(full_text))
 
@@ -119,29 +44,7 @@ init_vars_to_show=
   # ,"Classement producteur Niveau 1"
                )
 #
-# full_text=pbapply::pbapply(index[,init_vars_to_show,with=F],1,paste,collapse=" ")
-#
-# full_text=tolower(full_text)
-# full_text=gsub(x = full_text,
-#                           pattern = "[[:punct:]]",
-#                           replacement=" ")
-# full_text=tm::stripWhitespace(full_text)
-# full_text_split=str_split(full_text,pattern = " ")
-# names(full_text_split) <- paste0(index$index,"_")
-# full_text_split=unlist(full_text_split)
-# full_text_split=data.table(index=names(full_text_split),
-#                            word=unname(full_text_split))
-# full_text_split$index=stringr::str_extract(full_text_split$index,"^.+_")
-# full_text_split$index=substr(full_text_split$index,1,str_length(full_text_split$index)-1)
-#
-#
-# full_text_split=unique(full_text_split)
-# full_text_split=full_text_split[!grepl(pattern = "^(([0-9])|( ))+$",
-#                                        full_text_split$word)]
-# stopwords_vec=stopwords::stopwords(language = "fr")
-# stopwords_vec=c(stopwords_vec,"na"," ","")
-# full_text_split$word <- enc2native(full_text_split$word)
-# save(stopwords_vec,full_text_split,file="data/term_freq.RData")
+
 load("data/term_freq.RData")
 # table(unlist(sapply(full_text_split,Encoding)))
 
@@ -254,40 +157,7 @@ source("utils/mongo_db_connection.R",local = T)
 
 custom_DT=JS(
   "function(settings, json) {",
-  # "console.log(this.api());",
-  # "$('.dataTables_filter').wrap('<div').appendTo('#sidebarItemExpanded')",
-  # "$('.dataTables_filter').css({'float':'inherit'",
-  # ",'text-align':'center','vertical-align':'middle'});",
-  # "$('.dataTables_filter input').wrap('<div class=&quot;search-bar-seule&quot; id=&quot;search-bar-seule&quot; ></div>');",
-  # "$('input[type=search]').removeClass().addClass('selectize-input');",
-  # "$('#sidebarItemExpanded > .dataTables_filter').remove();",
-  # "$('#sidebarItemExpanded > .dataTables_length').remove();",
-  # "$('.dataTables_filter').addClass('form-group shiny-input-container').appendTo('#sidebarItemExpanded');",
-  # "$('.dataTables_length').addClass('form-group shiny-input-container').appendTo('#sidebarItemExpanded');",
-  #MODIFICATION DU TEXTE DU SELECT DE LA LONGUEUR DE LA TABLE AFFICHEE
-# "function replaceNodeText(){
-#   console.log(this.nodeType);
-#   if (this.nodeType == 3){
-#     this.nodeValue = this.nodeValue.replace(replaceNodeText.find,replaceNodeText.replace);
-#       } else {
-#     $(this).contents().each(replaceNodeText);
-#     }
-#   }
-#   replaceNodeText.find='Show';
-#   replaceNodeText.replace='Afficher';
-# $('.dataTables_length').contents().each(replaceNodeText);
-#     replaceNodeText.find='entries';
-#   replaceNodeText.replace='indicateurs';",
-# "$('.dataTables_length').contents().each(replaceNodeText);",
-# "$('select.shinyjs-resettable').css({'color':'#333'});",
-# "$('.dataTables_paginate').insertAfter('.dataTables_scroll');",
-
-# A MODIFIER POUR QUE CA MARCHE
-# "$('th.sorting').parent().after('<tr> `yo` <\tr>')",
-
-  # ".css({'float':'inherit','text-align':'right','vertical-align':'middle'})",
-  # "$('.form-group.shiny-input-container').children().appendTo('.dataTables_filter')",
-#MODIFICATION DU TITRE :
+  #MODIFICATION DU TITRE :
   "function setTextContents($elem, text) {",
   "  $elem.contents().filter(function() {",
   "    if (this.nodeType == Node.TEXT_NODE) {",

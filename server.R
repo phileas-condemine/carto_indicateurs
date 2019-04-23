@@ -1,9 +1,7 @@
 function(input,output,session){
 
   displayed_notif_about_randomization=reactiveVal(F)
-  # js$move_navpills()
 
-  # toggleModal(session, "startupModal", toggle = "open")
   tags_reac=reactiveVal()
 
   to_plot=reactive({
@@ -21,25 +19,7 @@ function(input,output,session){
     return(my_data)
   })
 
-  # proxy <- dataTableProxy('DT_to_render')
-  # observe({
-  #   req(proxy)
-  #   to_plot()
-  #   # input$vars_to_show
-  #   proxy %>% updateSearch(keywords = list(global = paste(input$search_keywords,collapse=" ")))
-  #   # when it updates, save the search strings so they're not lost
-  #   # isolate({
-  #   #
-  #   #   # update global search and column search strings
-  #   #   default_search <- input$search_keywords
-  #   #   default_search_columns <- c("", input$DT_to_render_search_columns)
-  #   #
-  #   #   # update the search terms on the proxy table (see below)
-  #   #   proxy %>% updateSearch(keywords =
-  #   #        list(global = input$search_keywords,
-  #   #             columns = default_search_columns))
-  #   # })
-  # })
+
   if(to_mongo_db){
     observeEvent(input$tag,{
       val=paste(input$tag,collapse=" & ")
@@ -68,13 +48,7 @@ function(input,output,session){
       }
       
       
-      
-      # print(Encoding(input$search_keywords))
-      # print(Encoding(enc2native(input$search_keywords)))
 
-      # print(table(unlist(lapply(to_plot()[,input$vars_to_show,with=F]%>%mutate_all(as.character),Encoding))))
-
-      # print(paste(enc2native(input$search_keywords),collapse=" "))
       my_datatable=datatable(to_plot()[,input$vars_to_show,with=F],
           extensions = c('Buttons'
                          ,'ColReorder'
@@ -135,8 +109,6 @@ function(input,output,session){
 
   observeEvent(length(input$tag)==0,{
     if(length(input$tag)==0){
-    # isolate({
-
     removeUI(selector = "#tag_div",immediate = T,session=session)
     insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
              ui = div(id="tag_div",class="col-sm-6 inbody_selector",
@@ -149,26 +121,15 @@ function(input,output,session){
                         icon("question-circle") %>%
                           bs_embed_tooltip(title = "Choisissez une ou plusieurs thématique(s) de votre choix pour commencer à explorer le catalogue des indicateurs. Sinon vous pouvez également utiliser la recherche par mot-clef.")
                       )))
-    # })
     }
   })
 
   observeEvent(c(input$DT_to_render_rows_all),{
-    # if(is.null(input$DT_to_render_rows_all)){
-      # callModule(module = my_value_boxes,id="valueBoxes",
-                 # to_plot,NULL)
-
-    # }
-    # req(input$DT_to_render_rows_all)
-    # req(to_plot())
-    isolate({
+  isolate({
 
 
       sub_index=to_plot()[input$DT_to_render_rows_all]$index
     if(length(input$search_keywords)>0|length(input$tag)>0){
-      # sub_indexes=full_text_split[word%in%input$search_keywords,
-                                # list(nb=uniqueN(word)),by="index"]
-      # sub_indexes=unique(sub_indexes[nb==length(input$search_keywords)]$index)
       term_freq=full_text_split[index%in%sub_index,list(freq=.N),by="word"]
     } else {
       term_freq=full_text_split[,list(freq=.N),by="word"]
@@ -192,7 +153,6 @@ function(input,output,session){
         sub_tags=tag_pred[index%in%sub_index,
                       c("tag1","tag2","tag3")]%>%
       unlist()%>%
-      # {c(.$tag1,.$tag2,.$tag3)}%>%
       unique()
 
     currently_selected_tags=input$tag
@@ -213,17 +173,6 @@ function(input,output,session){
                                          bs_embed_tooltip(title = "Choisissez une ou plusieurs thématique(s) de votre choix pour commencer à explorer le catalogue des indicateurs. Sinon vous pouvez également utiliser la recherche par mot-clef.")
                                      )))
 
-    # AJOUT PAGE D'ACCUEIL AVEC BARRE DE RECHERCHE
-    # ET MENU DEROULANT 4 THEMATIQUES
-    # OU TOP 10 TAG et ... afficher plus
-    # pour la page "à propos/info" ajouter un carousel avec les logos/icons des producteurs
-
-
-    # sub_tag_pred=tag_pred[index%in%sub_index]
-    # sub_tags=unique(sub_tag_pred$tag1,sub_tag_pred$tag2,sub_tag_pred$tag3)
-    # updateSelectizeInput(inputId="tag",selected = input$tag,
-    #                      session=session,choices = sub_tags)
-    #  callModule(module = my_value_boxes,id="valueBoxes",to_plot,reactive(input$DT_to_render_rows_all))
       })
 
     })
