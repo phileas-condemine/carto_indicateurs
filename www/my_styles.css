@@ -9,14 +9,14 @@
 .shiny-output-error { visibility: hidden; }
 .shiny-output-error:before {
   visibility: visible;
-  content: "L'application a rencontré une erreur. Contacter l'administrateur via un issue sur le site github du projet."; 
+  content: "L'application a rencontré une erreur. Merci de contacter l'administrateur via un issue sur le site github du projet (bouton situé en haut à droite)."; 
 }
 
 .icon_drees {
     background: url('drees_icon.png');
     height: 20px;
     width: 22px;
-    
+
     /* Other styles here */
 }
 

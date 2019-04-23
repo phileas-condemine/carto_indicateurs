@@ -11,4 +11,6 @@ tweet_history/
 global_debug.R
 ui_debug.R
 server_debug.R
-utils/
+utils/mongo_db_connection.R
+utils/repex_dt_search_latin.R
+current_ip.txt

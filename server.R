@@ -1,6 +1,6 @@
 function(input,output,session){
 
-
+  displayed_notif_about_randomization=reactiveVal(F)
   # js$move_navpills()
 
   # toggleModal(session, "startupModal", toggle = "open")
@@ -21,7 +21,7 @@ function(input,output,session){
     return(my_data)
   })
 
-
+  # proxy <- dataTableProxy('DT_to_render')
   # observe({
   #   req(proxy)
   #   to_plot()
@@ -40,9 +40,35 @@ function(input,output,session){
   #   #             columns = default_search_columns))
   #   # })
   # })
+  if(to_mongo_db){
+    observeEvent(input$tag,{
+      val=paste(input$tag,collapse=" & ")
+      print(val)
+      db$insert(data.frame(id=id,time=Sys.time(),input="tag",valeur=val))
+    })
+    observeEvent(input$search_keywords,{
+      val=paste(input$search_keywords,collapse=" & ")
+      print(val)
+      db$insert(data.frame(id=id,time=Sys.time(),input="search_keywords",valeur=val))
+    })
+    
+  }
+  
+
+  
   output$DT_to_render=renderDT({
     print(input$search_keywords)
     if(length(input$tag)>0|length(input$search_keywords)>0){
+      
+      if(!displayed_notif_about_randomization()){
+        showNotification(a("Deux requêtes identiques ne fourniront pas les résultats dans le même ordre.",
+                           href="https://medium.com/@galatea.net/charte-%C3%A9thique-pour-les-algorithmes-publics-b0c5422a54c9"), 
+                         duration = 15, closeButton = TRUE, type = "message")
+        displayed_notif_about_randomization(T)
+      }
+      
+      
+      
       # print(Encoding(input$search_keywords))
       # print(Encoding(enc2native(input$search_keywords)))
 
@@ -60,7 +86,7 @@ function(input,output,session){
              searchCols = default_search_columns,
              search = list(regex = FALSE,
                            caseInsensitive = TRUE,
-                           search = enc2native(paste(input$search_keywords,collapse=" "))),
+                           search = iconv(paste(input$search_keywords,collapse=" "),to = "UTF-8")),
              fixedHeader = TRUE,
              language = list(
                            info = 'Résultats _START_ à _END_ sur une liste de _TOTAL_.',
@@ -106,7 +132,6 @@ function(input,output,session){
     NULL
     }
           })
-  proxy <- dataTableProxy('DT_to_render')
 
   observeEvent(length(input$tag)==0,{
     if(length(input$tag)==0){
@@ -254,6 +279,15 @@ function(input,output,session){
     content=to_plot()[row_clicked]
     content_tags=tag_pred[index==content$index]
     tags_reac(c(content_tags$tag1,content_tags$tag2,content_tags$tag3))
+    
+    if(to_mongo_db){
+      val=content$Indicateur
+      print(val)
+      db$insert(data.frame(id=id,time=Sys.time(),input="click_indicateur",valeur=val))
+    }
+    
+    
+    
     showModal(modalDialog(
         fluidRow(style="color:#0253a3;text-align:center; margin-top:-15px;font-size:large;background-image: linear-gradient(to bottom,#f5f5f5 0,#e8e8e8 100%);",content$Indicateur),
         fluidRow(style="border-width:1px;border-style:ridge;border-color:#f5f5f5;padding-top:10px;padding-bottom:10px;",

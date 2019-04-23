@@ -24,8 +24,8 @@ dashboardPage(
                         target="_blank"))
               )))
       ,includeCSS("www/my_styles.css")
-      # ,includeHTML('www/cookie_handler.html')
-      # ,includeScript("www/hide_when_loading.js")
+      ,includeHTML('www/cookie_handler.html')
+      ,includeScript("www/hide_when_loading.js")
 
 
 
@@ -57,8 +57,8 @@ dashboardPage(
                    menuItem(text = "Paramétrage",icon = shiny::icon("gear"),
                             selectInput(inputId="vars_to_show",label="Variables à afficher",
                                         selected = init_vars_to_show,choices=names(index),multiple=T))),
-                   includeHTML("www/logos.html"),
-                   tags$img(src="Logo_Drees.jpg")
+                   includeHTML("www/logos.html")
+                   # ,tags$img(src="Logo_Drees.jpg")
       ),
   dashboardBody(
     # useShinyjs(),

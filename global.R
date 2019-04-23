@@ -98,6 +98,8 @@ if (!exists("default_search_columns")) default_search_columns <- NULL
 
 
 load("data/init_data.RData")
+index[,random_order:=sample(.N)]
+setorder(index,random_order)
 
 source_readme="https://raw.githubusercontent.com/phileas-condemine/carto_indicateurs/master/readme.md"
 
@@ -178,7 +180,7 @@ observe({
     return(box1)#https://stackoverflow.com/questions/34413137/use-href-infobox-as-actionbutton
   })
   output$nb_prod=renderValueBox({
-    nb=length(unique(my_data$Producteur))
+    nb=length(unique(my_data$Producteurs))
     box1<-valueBox(value=nb,subtitle = ifelse(nb<=1," Producteur"," Producteurs"),
              icon = icon("group"),
              color = "green",href='#')
@@ -199,7 +201,7 @@ observe({
 
   })
   output$prod_ppal=renderValueBox({
-    nm=strsplit(as.character(my_data$fixed_prod),",")%>%unlist%>%table%>%sort(decreasing=T)%>%head(1)%>%names
+    nm=strsplit(as.character(my_data$Producteurs),",")%>%unlist%>%table%>%sort(decreasing=T)%>%head(1)%>%names
     box1<-valueBox(value=nm,
               subtitle = "Favori",
              icon = icon("star"),
@@ -243,8 +245,12 @@ my_value_boxesUI <- function(id) {
 }
 
 
+########### CONNEXION MONGODB ###########
+source("utils/mongo_db_connection.R",local = T)
 
 
+
+########## CUSTOM JS for DT ############
 
 custom_DT=JS(
   "function(settings, json) {",
