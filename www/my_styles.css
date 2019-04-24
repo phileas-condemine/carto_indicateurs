@@ -102,3 +102,11 @@ img {
 .dataTables_wrapper tr {
     cursor: pointer;
 }
+
+img {
+    cursor: pointer;
+}
+
+a {
+    cursor: pointer;
+}

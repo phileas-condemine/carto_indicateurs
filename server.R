@@ -52,8 +52,10 @@ function(input,output,session){
       my_datatable=datatable(to_plot()[,input$vars_to_show,with=F],
        extensions = c('Buttons'
                       ,'ColReorder'
-                      , 'FixedHeader'),
+                      , 'FixedHeader',"Responsive"),
        options = list(
+         lengthMenu = list(c(10, 20, 50, -1),
+                           c(10, 20, 50, "Tout")),
          colReorder = TRUE,
          searchHighlight = TRUE,
          stateSave = FALSE,
@@ -64,8 +66,10 @@ function(input,output,session){
          fixedHeader = TRUE,
          language = list(
            info = 'Résultats _START_ à _END_ sur une liste de _TOTAL_.',
-           paginate = list(previous = 'Précédent', `next` = 'Suivant')),
-         dom = "tBfrip",# "Blftipr"
+           paginate = list(previous = 'Précédent', `next` = 'Suivant'),
+           lengthMenu='Afficher _MENU_ résultats'
+           ),
+         dom = "tBpl",# "Blftipr"
          initComplete = JS(readLines("www/custom_DT.js")),#custom_DT,
          scrollX=F,
          pageLength = 50,
@@ -84,8 +88,8 @@ function(input,output,session){
                # JS(readLines("www/render_customized.js", warn = FALSE))
                JS(
                  "function(data, type, row, meta) {",
-                 "return type === 'display' && data.length > 80 ?",
-                 "'<span title=\"' + data + '\">' + data.substr(0, 80) + '...</span>' : data;",
+                 sprintf("return type === 'display' && data.length > %s ?",input$nb_chars_cut),
+                 sprintf("'<span title=\"' + data + '\">' + data.substr(0, %s) + '...</span>' : data;",input$nb_chars_cut),
                  "}"
                )
            )

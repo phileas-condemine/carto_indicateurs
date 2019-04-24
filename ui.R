@@ -39,7 +39,10 @@ dashboardPage(
 
                    menuItem(text = "Paramétrage",icon = shiny::icon("gear"),
                             selectInput(inputId="vars_to_show",label="Variables à afficher",
-                                        selected = init_vars_to_show,choices=names(index),multiple=T))),
+                                        selected = init_vars_to_show,choices=names(index),multiple=T),
+                            sliderInput(inputId="nb_chars_cut",label = "Troncage du texte de l'indicateur",
+                                        min = 0,max=max(nchar(index$Indicateur)),value = 80,
+                                        step = 10,round = T,ticks = F,animate = F))),
                    includeHTML("www/logos.html")
                    # ,tags$img(src="Logo_Drees.jpg")
       ),
