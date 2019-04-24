@@ -50,50 +50,49 @@ function(input,output,session){
       
       
       my_datatable=datatable(to_plot()[,input$vars_to_show,with=F],
-                             extensions = c('Buttons'
-                                            ,'ColReorder'
-                                            , 'FixedHeader'),
-                             options = list(
-                               colReorder = TRUE,
-                               searchHighlight = TRUE,
-                               stateSave = FALSE,
-                               searchCols = default_search_columns,
-                               search = list(regex = FALSE,
-                                             caseInsensitive = TRUE,
-                                             search = iconv(paste(input$search_keywords,collapse=" "),to = "UTF-8")),
-                               fixedHeader = TRUE,
-                               language = list(
-                                 info = 'Résultats _START_ à _END_ sur une liste de _TOTAL_.',
-                                 paginate = list(previous = 'Précédent', `next` = 'Suivant')),
-                               dom = "tBfrip",# "Blftipr"
-                               initComplete = JS(readLines("www/custom_DT.js")),#custom_DT,
-                               scrollX=F,
-                               pageLength = 50,
-                               buttons = list(list(extend = "copy",
-                                                   text = "Copier"),
-                                              list(extend = "csv",
-                                                   text = "Format CSV"),
-                                              list(extend = "excel",
-                                                   text = "Format Excel")),#c('copy', 'csv', 'excel'),
-                               
-                               columnDefs = list(
-                                 list(
-                                   targets = "_all",
-                                   className = 'dt-center',
-                                   render =
-                                     # JS(readLines("www/render_customized.js", warn = FALSE))
-                                     JS(
-                                       "function(data, type, row, meta) {",
-                                       "return type === 'display' && data.length > 80 ?",
-                                       "'<span title=\"' + data + '\">' + data.substr(0, 80) + '...</span>' : data;",
-                                       "}"
-                                     )
-                                 )
-                                 # ,
-                                 #https://datatables.net/forums/discussion/32240/how-to-implement-a-popup-tooltip-on-a-datatables-cell-that-displays-all-data
-                               )
-                             ),
-                             class = "display hover",selection = 'none',rownames=F)
+       extensions = c('Buttons'
+                      ,'ColReorder'
+                      , 'FixedHeader'),
+       options = list(
+         colReorder = TRUE,
+         searchHighlight = TRUE,
+         stateSave = FALSE,
+         searchCols = default_search_columns,
+         search = list(regex = FALSE,
+                       caseInsensitive = TRUE,
+                       search = iconv(paste(input$search_keywords,collapse=" "),to = "UTF-8")),
+         fixedHeader = TRUE,
+         language = list(
+           info = 'Résultats _START_ à _END_ sur une liste de _TOTAL_.',
+           paginate = list(previous = 'Précédent', `next` = 'Suivant')),
+         dom = "tBfrip",# "Blftipr"
+         initComplete = JS(readLines("www/custom_DT.js")),#custom_DT,
+         scrollX=F,
+         pageLength = 50,
+         buttons = list(list(extend = "copy",
+                             text = "Copier"),
+                        list(extend = "csv",
+                             text = "Format CSV"),
+                        list(extend = "excel",
+                             text = "Format Excel")),#c('copy', 'csv', 'excel'),
+         
+         columnDefs = list(
+           list(
+             targets = "_all",
+             className = 'dt-center',
+             render =
+               # JS(readLines("www/render_customized.js", warn = FALSE))
+               JS(
+                 "function(data, type, row, meta) {",
+                 "return type === 'display' && data.length > 80 ?",
+                 "'<span title=\"' + data + '\">' + data.substr(0, 80) + '...</span>' : data;",
+                 "}"
+               )
+           )
+           # ,
+           #https://datatables.net/forums/discussion/32240/how-to-implement-a-popup-tooltip-on-a-datatables-cell-that-displays-all-data
+         )
+       ),class = "display hover",selection = 'none',rownames=F)
       callModule(module = my_value_boxes,id="valueBoxes",
                  to_plot,reactive(input$DT_to_render_rows_all))
       my_datatable

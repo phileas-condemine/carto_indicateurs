@@ -94,3 +94,11 @@ img {
   padding-top:10px;
   padding-bottom:10px;
 }
+
+.small-box {
+  margin-bottom:5px;
+}
+
+.dataTables_wrapper tr {
+    cursor: pointer;
+}
