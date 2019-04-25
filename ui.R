@@ -80,10 +80,7 @@ dashboardPage(
                       )),
                   div(id="carto_datatable",dataTableOutput("DT_to_render")),
                   conditionalPanel("(input.tag.length == 0) && (input.search_keywords.length == 0)",
-                                   div(id="placeholder_datatable",
-                                       tags$h3('Rechercher des indicateurs de santé'),
-                                       tags$p("Utilisez l'une des barres de recherche ci-dessus pour rechercher des indicateurs de santé grâce à des mots clefs ou grâce à des catégories pré-définies (tags), pour en savoir plus rendez-vous dans l'onglet d'accueil")
-                                   )
+                                   includeHTML("www/placeholder_datatable.html")
                                    # carousel
                                    )),
               includeHTML("www/footer_catalogue.html"))

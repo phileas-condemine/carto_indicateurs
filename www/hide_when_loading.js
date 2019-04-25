@@ -14,7 +14,12 @@ function move_navpills(){
   /*$('body > div.wrapper > header > nav > div > ul > li:nth-child(2) > a').
   clone().appendTo('div #go_to_catalog').wrapInner('<button type="button" class="btn btn-success btn-lg" id="btn_to_catalog"></button>');*/
 }
-    
+
+function fix_boxes_height(){
+  $(".autre_box").height($("#recherche_box").height());
+}
 setInterval(checkifrunning, 50);
 
 setInterval(move_navpills, 50);
+
+setInterval(fix_boxes_height, 500);

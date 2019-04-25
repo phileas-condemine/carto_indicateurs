@@ -107,7 +107,29 @@ img {
 
 #placeholder_datatable {
   margin:20px 20px 20px 20px;
+  color:#ffffff;
 }
+
+#placeholder_datatable .box{
+   background:#1c8cfd;
+   margin:0;
+   border-radius:10px;
+}
+
+#placeholder_datatable .box_text_content{
+  padding:10px;
+}
+
+#placeholder_datatable h3 {
+  margin-top:0px;
+}
+
+#placeholder_datatable a {
+  color:#d9d9d9;
+}
+
+
+
 
 .slick-dots {
   position:relative;
