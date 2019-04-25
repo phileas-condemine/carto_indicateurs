@@ -176,3 +176,7 @@ custom_DT=JS(
 ######### LOAD CAROUSEL #########
 
 source("utils/create_carousel.R",local=T)
+
+# Change l'ordre des thèmes
+
+tags_class_list=tags_class_list[c(3,4,2,1)]
