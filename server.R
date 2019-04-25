@@ -187,9 +187,25 @@ function(input,output,session){
     ))
   })
   onclick("valuebox_indicateurs",{
+    nb_indicateurs=paste(names(to_plot()),collapse=" ")%>%paste(nrow(to_plot()))
+    output$quick_plot=renderPlotly({
+      req(input$Choix_var_quick_stat)
+      stat=to_plot()[,list(count=.N),by=eval(input$Choix_var_quick_stat)]
+      setnames(stat,input$Choix_var_quick_stat,"ventilation")
+      plot_ly(data=stat,x=~ventilation,y=~count)
+    })
+    
+    vars_interessants_stats=names(to_plot())
+    vars_interessants_stats=vars_interessants_stats[vars_interessants_stats%in%c("Base","Source","Producteurs","Echelle géo. nationale","Echelle géo. Rég","Echelle géo dep",
+                                                                                 "Autre échelle de restitution","Profondeur historique","Fréquence d'actualisation",
+                                                                                 "Date version base","Type d'accès","Producteur de la base")]
+    vars_interessants_stats=sample(vars_interessants_stats)
     showModal(modalDialog(title="Informations sur les indicateurs sélectionnés",easyClose = T,size = "m",fade = T,
+                          selectInput("Choix_var_quick_stat","Comment se répartissent les indicateurs ?",choices = vars_interessants_stats),
                           tags$div(id="modal_indicateurs",
-                                   HTML(paste("Un bon endroit pour afficher des informations complémentaire")))
+                                   HTML(paste("Un bon endroit pour afficher des informations complémentaire",nb_indicateurs))),
+                          plotlyOutput("quick_plot")
+                          
     ))
   })
   onclick("valuebox_bases",{

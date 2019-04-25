@@ -13,6 +13,7 @@ library(markdown)
 library(shinycssloaders)
 library(bsplus)
 library(slickR)
+library(plotly)
 
 ############# DATA PREP #############
 # source("utils/data_prep.R",local = T)
