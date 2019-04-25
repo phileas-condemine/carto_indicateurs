@@ -35,7 +35,7 @@ dashboardPage(
                    sidebarMenu(id="sidebarmenu",
                                menuItem(text = "Les indicateurs",icon = shiny::icon("search"),tabName="catalogue"),
                                
-                               menuItem("Accueil",icon = shiny::icon("home"),tabName="Accueil"),
+                               # menuItem("Accueil",icon = shiny::icon("home"),tabName="Accueil"),
                                
                                menuItem(text = "Paramétrage",icon = shiny::icon("gear"),
                                         selectInput(inputId="vars_to_show",label="Variables à afficher",
