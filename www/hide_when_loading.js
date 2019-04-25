@@ -16,7 +16,8 @@ function move_navpills(){
 }
 
 function fix_boxes_height(){
-  $(".autre_box").height($("#recherche_box").height());
+  max_height = Math.max($("#placeholder_datatable .box").height());
+  $("#placeholder_datatable .box").height(max_height);
 }
 setInterval(checkifrunning, 50);
 
