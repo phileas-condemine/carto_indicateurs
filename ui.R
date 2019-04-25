@@ -7,15 +7,15 @@ dashboardPage(
                        div(class = "navbar-custom-menu",
                            tags$ul(class = "nav navbar-nav",
                                    tags$li(id="logo_ministere",
-                                           a(tags$i(class="fa icon_ministere text-success vert_center"),"Ministère",href="http://solidarites-sante.gouv.fr/",
+                                           a(tags$i(class="fa icon_ministere text-success vert_center"),"Solidarités Santé",href="http://solidarites-sante.gouv.fr/",
                                              target="_blank")),
                                    tags$li(id="logo_drees",
-                                           a(tags$i(class="fa icon_drees text-success vert_center"),"DREES",href="http://drees.solidarites-sante.gouv.fr/etudes-et-statistiques/",
+                                           a(tags$i(class="fa icon_drees text-success vert_center"),"Développeur",href="http://drees.solidarites-sante.gouv.fr/etudes-et-statistiques/",
                                              target="_blank")),
                                    # https://resizeimage.net/
                                    
                                    tags$li(id="doc_click",
-                                           a(tags$i(class="fa icon_carto text-success vert_center"),"Le projet",
+                                           a(tags$i(class="fa icon_carto text-success vert_center"),"A propos",
                                              target="_blank"),style='cursor:pointer;'),
                                    
                                    tags$li(id="Github",
@@ -49,12 +49,12 @@ dashboardPage(
   dashboardBody(
     
     tabItems(
-      tabItem(tabName = "Accueil",
-              includeHTML("www/accueil.html"),
-              s2,
-              slickROutput("slicker_carousel",height = "300"),
-              includeHTML("www/footer_accueil.html")
-      ),
+      # tabItem(tabName = "Accueil",
+      #         includeHTML("www/accueil.html"),
+      #         s2,
+      #         slickROutput("slicker_carousel",height = "300"),
+      #         includeHTML("www/footer_accueil.html")
+      # ),
       
       tabItem(tabName = "catalogue",
               
