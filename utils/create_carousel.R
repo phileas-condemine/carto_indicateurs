@@ -38,9 +38,7 @@ all_contents=all_contents[rand]
 img_corres=img_corres[rand]
 
 cP=readLines("www/style_dot_imgs.js")
-
 cP=htmlwidgets::JS(cP)
-
 
 # print(all_contents[1:2])
 

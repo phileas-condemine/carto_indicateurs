@@ -223,6 +223,27 @@ function(input,output,session){
     ))
   })
   
+  
+  
+  ##### click sur les boxes du placeholder_datatable
+  
+  onclick(id = "tags_box",{
+    showModal(modalDialog(title="Classement des tags par thématiques",easyClose = T,size = "m",fade = T,
+                          tags$img(src="liste_des_tags.png")
+    ))
+  })
+  onclick(id = "infos_producteurs_box",{
+    ns <- session$ns #https://shiny.rstudio.com/articles/modules.html
+    showModal(modalDialog(title="Producteurs des indicateurs",easyClose = T,size = "l",fade = T,
+                          s2,
+                          # slickROutput(ns("slicker_carousel"),height = "300"),
+                          s1,
+                          footer=NULL
+    ))
+  })
+  
+  
+  
   observeEvent(input$DT_to_render_cell_clicked,{
     req(input$DT_to_render_cell_clicked)
     if(length(input$DT_to_render_cell_clicked)>0){

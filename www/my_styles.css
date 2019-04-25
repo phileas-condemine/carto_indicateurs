@@ -128,8 +128,11 @@ img {
   margin-top:0px;
 }
 
-#placeholder_datatable a {
+#placeholder_datatable a[href]{
   color:#d9d9d9;
+}
+#placeholder_datatable a:not([href]){
+  color:#ffffff;
 }
 
 #placeholder_datatable .columns{
@@ -147,4 +150,10 @@ img {
   height:40px;
   margin: 0;
   
+}
+
+
+.resultats .selectize-dropdown-content{
+  max-height:100vh;
+  overflow:auto;
 }

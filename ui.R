@@ -1,5 +1,4 @@
 dashboardPage(
-  
   tags$header(class = "main-header", span(class = "logo",style="background: #1263b3;", "Indicateurs de Santé"),
               tags$nav(class = "navbar navbar-static-top",style="background: #0253a3;",
                        role = "navigation", span(shiny::icon("bars"), style = "display:none;"),
@@ -17,7 +16,7 @@ dashboardPage(
                                    
                                    tags$li(id="doc_click",
                                            a(tags$i(class="fa icon_carto text-success vert_center"),"Le projet",
-                                             target="_blank")),
+                                             target="_blank"),style='cursor:pointer;'),
                                    
                                    tags$li(id="Github",
                                            a(tags$i(class="fa icon_github text-success vert_center"),"Code Source",href="https://github.com/phileas-condemine/carto_indicateurs",
@@ -26,6 +25,7 @@ dashboardPage(
               ,includeCSS("www/my_styles.css")
               ,includeHTML('www/cookie_handler.html')
               ,includeScript("www/hide_when_loading.js")
+              ,useShinyjs()  # Set up shinyjs
               
               
               

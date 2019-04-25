@@ -25,8 +25,27 @@ function fix_boxes_height(){
     });
   }
 }
+
+function reveal_iframe(){
+  if($(".modal-dialog iframe")[0].style.height=="0px"){
+    $(".modal-dialog iframe").height("300px");
+    $(".modal-dialog iframe").width("100%");
+  }
+  if($(".modal-dialog iframe").width()<110){
+    console.log($(".slick-slide")[0].style.width);
+    console.log($(".modal-dialog iframe").width());
+    /*$('.modal-dialog iframe').width("100%");*/
+    $('.slick-dots a').first().click();
+    $(".modal-dialog iframe").css('width','100%');
+  }
+}
+
+setInterval(fix_boxes_height, 100);
+
+setInterval(reveal_iframe, 500);
+
 setInterval(checkifrunning, 50);
 
 setInterval(move_navpills, 50);
 
-setInterval(fix_boxes_height, 100);
+
