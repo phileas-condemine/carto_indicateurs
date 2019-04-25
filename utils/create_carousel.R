@@ -54,7 +54,7 @@ s1 <- slickR(
     focusOnSelect = T,
     dots = T,
     customPaging = cP
-  ),height = 300,width='100%'
+  ),height = 500,width='100%'
 )
 
 #Putting it all together in one slickR call

@@ -1,6 +1,6 @@
 dashboardPage(
   
-  tags$header(class = "main-header", span(class = "logo",style="background: #1263b3;", "Indicateurs de Santé V0.5"),
+  tags$header(class = "main-header", span(class = "logo",style="background: #1263b3;", "Indicateurs de Santé"),
               tags$nav(class = "navbar navbar-static-top",style="background: #0253a3;",
                        role = "navigation", span(shiny::icon("bars"), style = "display:none;"),
                        a(href = "#", class = "sidebar-toggle", `data-toggle` = "offcanvas",
@@ -58,8 +58,9 @@ dashboardPage(
       
       tabItem(tabName = "catalogue",
               
-              my_value_boxesUI("valueBoxes"),
-              div(class="resultats",#style="width:95%;margin-left:20px; margin-right:20px",
+              fluidRow(my_value_boxesUI("valueBoxes")),
+              div(class="resultats",style="padding-top:50px;padding-bottom:50px;",#style="width:95%;margin-left:20px; margin-right:20px",
+                  fluidRow(
                   div(id="tag_div",class="col-sm-6 inbody_selector",
                       selectizeInput(inputId="tag",
                                      label = "Recherche par tags",#selected = ,
@@ -77,12 +78,13 @@ dashboardPage(
                       )%>%shinyInput_label_embed(
                         icon("question-circle") %>%
                           bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs. Les mots-clefs sont triés par fréquence.")
-                      )),
-                  div(id="carto_datatable",dataTableOutput("DT_to_render")),
+                      ))),
+                  fluidRow(
                   conditionalPanel("(input.tag.length == 0) && (input.search_keywords.length == 0)",
                                    includeHTML("www/placeholder_datatable.html")
                                    # carousel
-                                   )),
+                                   ),
+                  div(id="carto_datatable",dataTableOutput("DT_to_render")))),
               includeHTML("www/footer_catalogue.html"))
     )
   )

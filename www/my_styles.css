@@ -6,6 +6,10 @@
 #valueBoxes-nb_sources {padding:3px;}
 #valueBoxes-prod_ppal{padding:3px;}
 
+.bg-blue{
+  background-color:#1263b3!important;/*c'est sale mais dans adminLTE il y a déjà un !important*/
+}
+
 .shiny-output-error { visibility: hidden; }
 .shiny-output-error:before {
   visibility: visible;
@@ -128,6 +132,9 @@ img {
   color:#d9d9d9;
 }
 
+#placeholder_datatable .columns{
+  padding:15px;
+}
 
 
 
