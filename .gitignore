@@ -14,3 +14,5 @@ server_debug.R
 utils/mongo_db_connection.R
 utils/repex_dt_search_latin.R
 current_ip.txt
+www/logo_producteurs/
+doc/

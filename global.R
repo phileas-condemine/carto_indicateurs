@@ -12,6 +12,7 @@ library(stringr)
 library(markdown)
 library(shinycssloaders)
 library(bsplus)
+library(slickR)
 
 ############# DATA PREP #############
 # source("utils/data_prep.R",local = T)
@@ -170,3 +171,8 @@ custom_DT=JS(
 
 
 )
+
+
+######### LOAD CAROUSEL #########
+
+source("utils/create_carousel.R",local=T)

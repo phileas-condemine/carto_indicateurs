@@ -343,5 +343,8 @@ function(input,output,session){
     }
     '}))
   
+  output$slicker_carousel=renderSlickR(s1)
+  # output$slicker_carousel=renderSlickR(slickr_carousel)
+  
   
 }

@@ -100,13 +100,22 @@ img {
 }
 
 .dataTables_wrapper tr {
-    cursor: pointer;
+  cursor: pointer;
 }
 
-img {
-    cursor: pointer;
+
+
+#placeholder_datatable {
+  margin:20px 20px 20px 20px;
 }
 
-a {
-    cursor: pointer;
+.slick-dots {
+  position:relative;
+}
+
+.slick-dots li  {
+  width:45px;
+  height:40px;
+  margin: 0;
+  
 }

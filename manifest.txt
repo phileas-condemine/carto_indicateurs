@@ -22,3 +22,7 @@ www/DSSIS.png
 data/term_freq.RData
 www/hide_when_loading.js
 utils/mongo_db_connection.R
+www/text_producteurs/
+utils/create_carousel.R
+www/style_dot_imgs.js
+data/producteurs.csv
