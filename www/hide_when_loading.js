@@ -16,11 +16,17 @@ function move_navpills(){
 }
 
 function fix_boxes_height(){
-  max_height = Math.max($("#placeholder_datatable .box").height());
-  $("#placeholder_datatable .box").height(max_height);
+  if($(window).width() >= 768){
+    max_height = Math.max($("#placeholder_datatable .box_text_content").height())+20;
+    $("#placeholder_datatable .box").height(max_height);
+  } else {
+    $("#placeholder_datatable .box").each(function() {
+      $(this).height($(this).children().innerHeight());
+    });
+  }
 }
 setInterval(checkifrunning, 50);
 
 setInterval(move_navpills, 50);
 
-setInterval(fix_boxes_height, 500);
+setInterval(fix_boxes_height, 100);
