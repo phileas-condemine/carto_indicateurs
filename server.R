@@ -185,7 +185,7 @@ function(input,output,session){
         unique()
       
       currently_selected_tags=input$tag
-      if(length(currently_selected_tags)>0){
+      if(length(input$search_keywords)>0|length(input$tag)>0){
         sub_tags_class_list=lapply(tags_class_list,function(x)x[x%in%sub_tags])
       } else {
         sub_tags_class_list=tags_class_list
@@ -227,17 +227,21 @@ function(input,output,session){
                                                                                  "Date version base","Type d'accès","Producteur de la base")]
     vars_interessants_stats=sample(vars_interessants_stats)
     showModal(modalDialog(title="Informations sur les indicateurs sélectionnés",easyClose = T,size = "m",fade = T,
-                          selectInput("Choix_var_quick_stat","Comment se répartissent les indicateurs ?",choices = vars_interessants_stats),
-                          tags$div(id="modal_indicateurs",
-                                   HTML(paste("Un bon endroit pour afficher des informations complémentaire",nb_indicateurs))),
+                          selectInput("Choix_var_quick_stat",sprintf("Comment se répartissent les %s indicateurs sélectionnés ?",nb_indicateurs),choices = vars_interessants_stats),
                           plotlyOutput("quick_plot")
                           
     ))
   })
   onclick("valuebox_bases",{
-    showModal(modalDialog(title="Informations sur les bases",easyClose = T,size = "m",fade = T,
-                          tags$div(id="modal_bases",
-                                   HTML(paste("Un bon endroit pour afficher des informations complémentaire")))
+    
+    output$bases_plot=renderPlotly({
+      stat=to_plot()[,list(count=.N),by="Base"]
+      plot_ly(data=stat,labels=~Base,values=~count,type = "pie",showlegend = FALSE)
+    })
+    
+    showModal(modalDialog(title="Répartition des indicateurs dans les bases",easyClose = T,size = "m",fade = T,
+                          plotlyOutput("bases_plot"),footer=NULL
+                          
     ))
   })
   onclick("valuebox_producteurs",{

@@ -14,22 +14,22 @@ acro_extraction=function(nm){
   }),collapse=",")))
 # table(fixed_prod)
 }
-index$fixed_prod=acro_extraction(index$Producteur)
-index$fixed_source=acro_extraction(index$Source)
-index$fixed_base=acro_extraction(index$Base)
+index$Producteurs=acro_extraction(index$Producteur)
+index$Source=acro_extraction(index$Source)
+index$Base=acro_extraction(index$Base)
 
 
 
 
 
 
-producteurs=unique(unlist(strsplit(index$Producteur,",")))
-producteurs_acronymes=str_extract(string = producteurs,pattern = "(\\()([A-z]+)(\\))")
-producteurs_acronymes=gsub("\\(","",producteurs_acronymes)
-producteurs_acronymes=gsub("\\)","",producteurs_acronymes)
-Producteurs=data.table(Producteur=producteurs,Producteur_acronyme=producteurs_acronymes)
-Producteurs[is.na(Producteur_acronyme),Producteur_acronyme:=Producteur]
-prod_acro=unique(Producteurs$Producteur_acronyme)
+# producteurs=unique(unlist(strsplit(index$Producteur,",")))
+# producteurs_acronymes=str_extract(string = producteurs,pattern = "(\\()([A-z]+)(\\))")
+# producteurs_acronymes=gsub("\\(","",producteurs_acronymes)
+# producteurs_acronymes=gsub("\\)","",producteurs_acronymes)
+# Producteurs=data.table(Producteur=producteurs,Producteur_acronyme=producteurs_acronymes)
+# Producteurs[is.na(Producteur_acronyme),Producteur_acronyme:=Producteur]
+# prod_acro=unique(Producteurs$Producteur_acronyme)
 # set.seed(1)
 index=index[,-1]
 
@@ -57,9 +57,10 @@ class_for_split=rep.int(names(size_classes),size_classes)
 tags_class_vec=tags_class_vec[!tags_class_vec==""]
 tags_class_list=split(tags_class_vec,class_for_split)
 
-tag_pred$tag1=as.character(tag_pred$tag1)
-tag_pred$tag2=as.character(tag_pred$tag2)
-tag_pred$tag3=as.character(tag_pred$tag3)
+# tag_pred$tag1=as.character(tag_pred$tag1)
+# tag_pred$tag2=as.character(tag_pred$tag2)
+# tag_pred$tag3=as.character(tag_pred$tag3)
+tag_pred=tag_pred%>%mutate_at(c("tag1","tag2","tag3"),as.character)%>%data.table
 
 for (i in which(sapply(index,is.factor))){
   print(i)
@@ -70,13 +71,24 @@ for (i in which(sapply(index,is.factor))){
   table(Encoding(index[[i]]))
 
 }
-save(tag_pred,prod_acro,index,tags_class_list,tag_names,file="data/init_data.RData")
 
-full_text=pbapply::pbapply(index,1,paste,collapse=" ")
-save(full_text,file="data/full_text.RData")
+save(tag_pred,
+     # prod_acro,
+     index,tags_class_list,tag_names,file="data/init_data.RData")
+
+# full_text=pbapply::pbapply(index,1,paste,collapse=" ")
+# save(full_text,file="data/full_text.RData")
 
 
-
+init_vars_to_show=
+  c("Base","Indicateur",
+    # "Famille",
+    # "Source",
+    "Producteur"
+    # ,"Classement producteur Niveau 3"
+    # ,"Classement producteur Niveau 2"
+    # ,"Classement producteur Niveau 1"
+  )
 
 
 full_text=pbapply::pbapply(index[,init_vars_to_show,with=F],1,paste,collapse=" ")

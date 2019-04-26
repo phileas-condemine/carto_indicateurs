@@ -33,10 +33,9 @@ setorder(index,random_order)
 source_readme="https://raw.githubusercontent.com/phileas-condemine/carto_indicateurs/master/readme.md"
 
 
-load("data/full_text.RData")
+# load("data/full_text.RData")
 # table(Encoding(full_text))
 
-setnames(index,"fixed_prod","Producteurs")
 init_vars_to_show=
   c("Base","Indicateur",
     # "Famille",
@@ -115,7 +114,7 @@ observe({
     # box1$children[[1]]$attribs$class <- "action-button"
     box1$children[[1]]$attribs$id <- "valuebox_prod_principal"
     box1$children[[1]]$attribs$target <- "blank"
-    
+
     return(box1)#https://stackoverflow.com/questions/34413137/use-href-infobox-as-actionbutton
 
   })

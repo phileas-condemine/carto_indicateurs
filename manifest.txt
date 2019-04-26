@@ -1,7 +1,6 @@
 ui.R
 global.R
 server.R
-data/full_text.RData
 data/init_data.RData
 readme.md
 www/my_styles.css
