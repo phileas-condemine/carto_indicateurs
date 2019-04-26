@@ -213,7 +213,7 @@ function(input,output,session){
     ))
   })
   onclick("valuebox_indicateurs",{
-    nb_indicateurs=paste(names(to_plot()),collapse=" ")%>%paste(nrow(to_plot()))
+    nb_indicateurs=nrow(to_plot())
     output$quick_plot=renderPlotly({
       req(input$Choix_var_quick_stat)
       stat=to_plot()[,list(count=.N),by=eval(input$Choix_var_quick_stat)]
@@ -228,7 +228,7 @@ function(input,output,session){
     vars_interessants_stats=sample(vars_interessants_stats)
     showModal(modalDialog(title="Informations sur les indicateurs sélectionnés",easyClose = T,size = "m",fade = T,
                           selectInput("Choix_var_quick_stat",sprintf("Comment se répartissent les %s indicateurs sélectionnés ?",nb_indicateurs),choices = vars_interessants_stats),
-                          plotlyOutput("quick_plot")
+                          plotlyOutput("quick_plot"),footer=NULL
                           
     ))
   })
@@ -245,10 +245,29 @@ function(input,output,session){
     ))
   })
   onclick("valuebox_producteurs",{
-    showModal(modalDialog(title="Informations sur les producteurs des indicateurs filtrés",easyClose = T,size = "m",fade = T,
-                          tags$div(id="modal_producteurs",
-                                   HTML(paste("Un bon endroit pour afficher des informations complémentaire")))
-    ))
+    output$bases_plot=renderForceNetwork({
+      sub_index=to_plot()$index
+      sub_index=index$index
+      sub_cooc=cooc_producteurs[index%in%sub_index,list(weight=.N),by=c("variable.x","variable.y")]
+      graph=graph.data.frame(sub_cooc)
+      graph2=networkD3::igraph_to_networkD3(graph)
+      graph2$nodes$group=1
+      graph2$nodes$name=as.character(graph2$nodes$name)
+      node_size=sub_cooc[variable.x==variable.y,c("variable.x","weight")]
+      graph2$nodes=merge(graph2$nodes,node_size,by.x="name",by.y="variable.x")
+      graph2$nodes$weight=sqrt(graph2$nodes$weight)
+      forceNetwork(Links = graph2$links, Nodes = graph2$nodes,Value="value",
+                   Source = 'source', Target = 'target',
+                   linkWidth = networkD3::JS("function(d) { return Math.log(d.value); }"),
+                   Nodesize = "weight", 
+                   NodeID = 'name',Group='group',zoom = TRUE,fontSize=20,opacity = 1)    
+      
+    })
+    showModal(modalDialog(title="Collaborations entre les producteurs",easyClose = T,size = "m",fade = T,
+    
+                          forceNetworkOutput("bases_plot",width = "auto",height = "400px"),footer=NULL
+                          
+                          ))
   })
   onclick("valuebox_sources",{
     showModal(modalDialog(title="Informations sur les sources des indicateurs filtrés",easyClose = T,size = "m",fade = T,

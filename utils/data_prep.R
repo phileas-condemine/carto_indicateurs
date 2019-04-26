@@ -114,3 +114,31 @@ stopwords_vec=stopwords::stopwords(language = "fr")
 stopwords_vec=c(stopwords_vec,"na"," ","")
 full_text_split$word <- enc2native(full_text_split$word)
 save(stopwords_vec,full_text_split,file="data/term_freq.RData")
+
+
+### PREP NETWORK PRODUCTEURS
+
+cooc_from_vec=function(vec){
+  vec[vec==""]<-"Inconnu"
+  vec=strsplit(vec,",")
+  
+  
+  vec=pbapply::pblapply(vec,function(x){
+    res<-rep(1,length(x))
+    res<-matrix(res,ncol=length(x))
+    colnames(res)<-x
+    res<-data.table(res)
+    res
+  })
+  vec=rbindlist(vec,fill=T)
+  vec$index=index$index
+  vec_sp=melt(vec,id.vars = "index",variable.factor = F)
+  vec_sp=na.omit(vec_sp)
+  vec_sp$value=NULL
+  cooc=merge(vec_sp,vec_sp,by="index",allow.cartesian = T)
+  cooc
+}
+
+cooc_producteurs=cooc_from_vec(index$Producteurs)
+cooc_source=cooc_from_vec(index$Source)
+save(cooc_producteurs,cooc_source,file="data/cooc.RData")

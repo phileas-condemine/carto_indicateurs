@@ -15,6 +15,8 @@ library(bsplus)
 library(slickR)
 library(plotly)
 library(sunburstR)
+library(igraph)
+library(visNetwork)
 
 ############# DATA PREP #############
 # source("utils/data_prep.R",local = T)
@@ -183,3 +185,5 @@ source("utils/create_carousel.R",local=T)
 # Change l'ordre des thèmes
 
 tags_class_list=tags_class_list[c(3,4,2,1)]
+
+load("data/cooc.RData")

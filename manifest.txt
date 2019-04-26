@@ -25,3 +25,4 @@ www/text_producteurs/
 utils/create_carousel.R
 www/style_dot_imgs.js
 data/producteurs.csv
+data/cooc.RData
