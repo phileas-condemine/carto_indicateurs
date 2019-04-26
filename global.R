@@ -14,6 +14,7 @@ library(shinycssloaders)
 library(bsplus)
 library(slickR)
 library(plotly)
+library(sunburstR)
 
 ############# DATA PREP #############
 # source("utils/data_prep.R",local = T)
@@ -103,16 +104,18 @@ observe({
     box1$children[[1]]$attribs$class<-"action-button"
     box1$children[[1]]$attribs$id<-"valuebox_sources"
     return(box1)#https://stackoverflow.com/questions/34413137/use-href-infobox-as-actionbutton
-
   })
   output$prod_ppal=renderValueBox({
     nm=strsplit(as.character(my_data$Producteurs),",")%>%unlist%>%table%>%sort(decreasing=T)%>%head(1)%>%names
     box1<-valueBox(value=nm,
               subtitle = "Favori",
              icon = icon("star"),
-             color = "blue",href='#')
-    box1$children[[1]]$attribs$class<-"action-button"
-    box1$children[[1]]$attribs$id<-"valuebox_prod_principal"
+             color = "blue",href=paste0("https://search.lilo.org/searchweb.php?q=",nm)#%>%URLencode
+             )
+    # box1$children[[1]]$attribs$class <- "action-button"
+    box1$children[[1]]$attribs$id <- "valuebox_prod_principal"
+    box1$children[[1]]$attribs$target <- "blank"
+    
     return(box1)#https://stackoverflow.com/questions/34413137/use-href-infobox-as-actionbutton
 
   })

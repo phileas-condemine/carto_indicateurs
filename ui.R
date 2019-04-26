@@ -65,7 +65,7 @@ dashboardPage(
                       selectizeInput(inputId="tag",
                                      label = "Recherche par tags",#selected = ,
                                      choices = tags_class_list,#selectize = F,size = length(tag_names)+5,
-                                     multiple=T,options = list(placeholder = sprintf('Ajoutez un filtre en choisissant parmi les %s thématiques liées à la santé',length(unlist(tags_class_list))))
+                                     multiple=T,options = list(plugins= list('remove_button'),placeholder = sprintf('Ajoutez un filtre en choisissant parmi les %s thématiques liées à la santé',length(unlist(tags_class_list))))
                       )%>%shinyInput_label_embed(
                         icon("question-circle") %>%
                           bs_embed_tooltip(title = "Choisissez une ou plusieurs thématique(s) de votre choix pour commencer à explorer le catalogue des indicateurs. Sinon vous pouvez également utiliser la recherche par mot-clef.")
@@ -74,17 +74,14 @@ dashboardPage(
                       selectizeInput(inputId="search_keywords",
                                      label = "Recherche par mot(s) clef(s)",
                                      choices = term_freq_global$word,
-                                     multiple=T,options = list(placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...')
+                                     multiple=T,options = list(plugins= list('remove_button'),placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...')
                       )%>%shinyInput_label_embed(
                         icon("question-circle") %>%
                           bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs. Les mots-clefs sont triés par fréquence.")
                       ))),
                   fluidRow(
-                  conditionalPanel("(input.tag.length == 0) && (input.search_keywords.length == 0)",
-                                   includeHTML("www/placeholder_datatable.html")
-                                   # carousel
-                                   ),
-                  div(id="carto_datatable",dataTableOutput("DT_to_render")))),
+                     div(id="placeholder_datatable",htmlOutput("placeholder_DT")),
+                     div(id="carto_datatable",dataTableOutput("DT_to_render")))),
               includeHTML("www/footer_catalogue.html"))
     )
   )

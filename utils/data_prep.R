@@ -3,16 +3,25 @@ tags_applied=fread("data/3105_Index des indicateurs tagges.csv",encoding = "Lati
 
 index=fread("data/29032018_Index2.csv",encoding = "Latin-1")
 
-fixed_prod=unlist(pbapply::pblapply(strsplit(index$Producteur,","),
-                  function(x)paste(lapply(x,function(y){
-  xtrct=str_extract(y,pattern = "(\\()(([A-z]|é|è|Î|à| |\\-)+)(\\))")
-  xtrct=gsub("\\(","",xtrct)
-  xtrct=gsub("\\)","",xtrct)
-  ifelse(is.na(xtrct),y,xtrct)
-}),collapse=",")))
 
-table(fixed_prod)
-index$fixed_prod=fixed_prod
+acro_extraction=function(nm){
+  unlist(pbapply::pblapply(strsplit(nm,","),
+                    function(x)paste(lapply(x,function(y){
+    xtrct=str_extract(y,pattern = "(\\()(([A-z]|é|è|Î|à| |\\-)+)(\\))")
+    xtrct=gsub("\\(","",xtrct)
+    xtrct=gsub("\\)","",xtrct)
+    ifelse(is.na(xtrct),y,xtrct)
+  }),collapse=",")))
+# table(fixed_prod)
+}
+index$fixed_prod=acro_extraction(index$Producteur)
+index$fixed_source=acro_extraction(index$Source)
+index$fixed_base=acro_extraction(index$Base)
+
+
+
+
+
 
 producteurs=unique(unlist(strsplit(index$Producteur,",")))
 producteurs_acronymes=str_extract(string = producteurs,pattern = "(\\()([A-z]+)(\\))")
@@ -21,7 +30,7 @@ producteurs_acronymes=gsub("\\)","",producteurs_acronymes)
 Producteurs=data.table(Producteur=producteurs,Producteur_acronyme=producteurs_acronymes)
 Producteurs[is.na(Producteur_acronyme),Producteur_acronyme:=Producteur]
 prod_acro=unique(Producteurs$Producteur_acronyme)
-set.seed(1)
+# set.seed(1)
 index=index[,-1]
 
 names(index) <- enc2utf8(names(index))

@@ -110,8 +110,31 @@ function(input,output,session){
     }
   })
   
-  observeEvent(length(input$tag)==0,{
-    if(length(input$tag)==0){
+  
+  output$placeholder_DT=renderUI({
+    req((length(input$tag)+length(input$search_keywords))==0)
+    includeHTML("www/placeholder_datatable.html")
+  })
+  
+  
+  observeEvent((length(input$tag)+length(input$search_keywords))==0,{
+    isolate({
+    if((length(input$tag)==0)&(length(input$search_keywords)==0)&displayed_notif_about_randomization()){#On utilise displayed_notif_about_randomization pour vérifier qu'on n'est pas à la phase d'initialisation ie un tableau a déjà été affiché !
+      term_freq=full_text_split[,list(freq=.N),by="word"]
+      term_freq=term_freq[!word%in%stopwords_vec]
+      setorder(term_freq,-freq)
+      removeUI(selector = "#search_keywords_div",immediate = T,session=session)
+      insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
+               ui = div(id="search_keywords_div",class="col-sm-6 inbody_selector",
+                        selectizeInput(inputId="search_keywords",
+                                       label = "Recherche par mot(s) clef(s)",
+                                       choices = term_freq$word,
+                                       multiple=T,options = list(plugins= list('remove_button'),placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...')
+                        )%>%shinyInput_label_embed(
+                          icon("question-circle") %>%
+                            bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs.")
+                        )))
+      
       removeUI(selector = "#tag_div",immediate = T,session=session)
       insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
                ui = div(id="tag_div",class="col-sm-6 inbody_selector",
@@ -119,12 +142,15 @@ function(input,output,session){
                                        label = "Recherche par tags",
                                        choices = tags_class_list,#selectize = F,size = length(tag_names)+5,
                                        multiple=T,
-                                       options = list(placeholder = sprintf('Ajoutez un filtre en choisissant parmi les %s thématiques liées à la santé',length(unlist(tags_class_list))))
+                                       options = list(plugins= list('remove_button'),
+                                                      placeholder = sprintf('Ajoutez un filtre en choisissant parmi les %s thématiques liées à la santé',length(unlist(tags_class_list))))
                         )%>%shinyInput_label_embed(
                           icon("question-circle") %>%
                             bs_embed_tooltip(title = "Choisissez une ou plusieurs thématique(s) de votre choix pour commencer à explorer le catalogue des indicateurs. Sinon vous pouvez également utiliser la recherche par mot-clef.")
                         )))
-    }
+
+
+    }})
   })
   
   observeEvent(c(input$DT_to_render_rows_all),{
@@ -147,7 +173,7 @@ function(input,output,session){
                                        label = "Recherche par mot(s) clef(s)",
                                        selected = currently_selected_keywords,
                                        choices = term_freq$word,
-                                       multiple=T,options = list(placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...')
+                                       multiple=T,options = list(plugins= list('remove_button'),placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...')
                         )%>%shinyInput_label_embed(
                           icon("question-circle") %>%
                             bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs.")
@@ -167,7 +193,7 @@ function(input,output,session){
       removeUI(selector = "#tag_div",immediate = T,session=session)
       insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
                ui = div(id="tag_div",class="col-sm-6 inbody_selector",
-                        selectizeInput(inputId="tag",
+                        selectizeInput(inputId="tag",options=list(plugins= list('remove_button'),placeholder = sprintf('Ajoutez un filtre en choisissant parmi les %s thématiques liées à la santé',length(unlist(tags_class_list)))),
                                        label = "Recherche par tags",
                                        selected = currently_selected_tags,
                                        choices = sub_tags_class_list,#selectize = F,size = length(tag_names)+5,
@@ -226,16 +252,40 @@ function(input,output,session){
                                    HTML(paste("Un bon endroit pour afficher des informations complémentaire")))
     ))
   })
-  onclick("valuebox_prod_principal",{
-    showModal(modalDialog(title="Informations sur le producteur principal",easyClose = T,size = "m",fade = T,
-                          tags$div(id="modal_prod_principal",
-                                   HTML(paste("Un bon endroit pour afficher des informations complémentaire sur le producteur principal")))
-    ))
-  })
+  # onclick("valuebox_prod_principal",{
+  #   
+  #   showModal(modalDialog(title="Informations sur le producteur principal",easyClose = T,size = "m",fade = T,
+  #                         tags$div(id="modal_prod_principal",
+  #                                  HTML(paste("Un bon endroit pour afficher des informations complémentaire sur le producteur principal"))),
+  #                         
+  #   ))
+  # })
   onclick("valuebox_nb_tags",{
-    showModal(modalDialog(title="Informations sur le nombre de tags représentés",easyClose = T,size = "m",fade = T,
-                          tags$div(id="modal_nb_tags",
-                                   HTML(paste("Un bon endroit pour afficher des informations complémentaire")))
+    sequences <- read.csv(
+           system.file("examples/visit-sequences.csv",package="sunburstR")
+           ,header = FALSE
+           ,stringsAsFactors = FALSE
+       )[1:100,]
+    indicateurs_index=to_plot()$index
+    # indicateurs_index=index[1:1000,]$index
+    tags_count=tag_pred[index%in%indicateurs_index,
+                c("tag1","tag2","tag3")]%>%
+      unlist()%>%table%>%data.frame
+    names(tags_count) <- c("tags","count")
+    theme_tag=tags_class_list%>%stack%>%
+      mutate_if(is.factor,as.character)%>%
+      mutate_all(function(x)gsub(" ","_",x))
+    tags_count=merge(tags_count,theme_tag,by.x="tags",by.y="values",all.x=T)
+    tags_count=tags_count%>%
+      mutate_if(is.factor,as.character)%>%
+      mutate(ind=paste(ind,tags,sep="-"))%>%
+      select(ind,count)
+    output$tags_sunburst=renderSunburst({
+      sunburst(rbind(tags_count),legend = F
+      )
+    })
+    showModal(modalDialog(title="Informations sur les tags représentés",easyClose = T,size = "m",fade = T,
+                          sunburstOutput("tags_sunburst"),footer=NULL
     ))
   })
   
