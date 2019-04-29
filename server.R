@@ -214,40 +214,57 @@ function(input,output,session){
   })
   onclick("valuebox_indicateurs",{
     nb_indicateurs=nrow(to_plot())
+      indics=to_plot()%>%select(Indicateur)
+      # indics=index%>%select(Indicateur)
+      term_count <- indics %>% 
+        unnest_tokens(word, Indicateur)
+      term_count <- term_count %>%
+        anti_join(data.frame(word=stopwords_vec,stringsAsFactors =F))
+      term_count <- term_count %>%
+        count(word, sort = TRUE) 
+      output$wordcloud=renderWordcloud2({
+      wordcloud2(term_count%>%head(500))
+        })
+
+
+    showModal(modalDialog(title=NULL,size="l",easyClose = T,fade = T,
+                          wordcloud2Output("wordcloud"),footer=NULL
+                          
+    ))
+  })
+  onclick("valuebox_bases",{    
+    nb_indicateurs=nrow(to_plot())
     output$quick_plot=renderPlotly({
       req(input$Choix_var_quick_stat)
       stat=to_plot()[,list(count=.N),by=eval(input$Choix_var_quick_stat)]
       setnames(stat,input$Choix_var_quick_stat,"ventilation")
-      plot_ly(data=stat,x=~ventilation,y=~count)
+      stat[,frac:=count/.N]
+      if(input$alpha_freq_order){
+        stat[,ventilation:=reorder(factor(ventilation),-count)]
+      }
+      plot_ly(data=stat,x=~ventilation,y=~count,type="bar")%>%layout(xaxis=list(title=F))
     })
-    
     vars_interessants_stats=names(to_plot())
     vars_interessants_stats=vars_interessants_stats[vars_interessants_stats%in%c("Base","Source","Producteurs","Echelle géo. nationale","Echelle géo. Rég","Echelle géo dep",
                                                                                  "Autre échelle de restitution","Profondeur historique","Fréquence d'actualisation",
                                                                                  "Date version base","Type d'accès","Producteur de la base")]
     vars_interessants_stats=sample(vars_interessants_stats)
-    showModal(modalDialog(title="Informations sur les indicateurs sélectionnés",easyClose = T,size = "m",fade = T,
-                          selectInput("Choix_var_quick_stat",sprintf("Comment se répartissent les %s indicateurs sélectionnés ?",nb_indicateurs),choices = vars_interessants_stats),
+    showModal(modalDialog(title=NULL,size="l",easyClose = T,fade = T,
+                          fluidRow(selectInput("Choix_var_quick_stat",
+                                      sprintf("Comment se répartissent les %s indicateurs sélectionnés selon différents critères ?",
+                                              nb_indicateurs),choices = vars_interessants_stats
+                          ),
+                                    switchInput(inputId = "alpha_freq_order",label = "Ordre",
+                                                value=T,onLabel="Fréquence",offLabel = "Alphabétique",width="100%")),
                           plotlyOutput("quick_plot"),footer=NULL
                           
     ))
   })
-  onclick("valuebox_bases",{
-    
-    output$bases_plot=renderPlotly({
-      stat=to_plot()[,list(count=.N),by="Base"]
-      plot_ly(data=stat,labels=~Base,values=~count,type = "pie",showlegend = FALSE)
-    })
-    
-    showModal(modalDialog(title="Répartition des indicateurs dans les bases",easyClose = T,size = "m",fade = T,
-                          plotlyOutput("bases_plot"),footer=NULL
-                          
-    ))
-  })
   onclick("valuebox_producteurs",{
-    output$bases_plot=renderForceNetwork({
-      sub_index=to_plot()$index
-      sub_index=index$index
+    nb_indicateurs=nrow(to_plot())
+    sub_index=to_plot()$index
+    output$network=renderForceNetwork({
+      # sub_index=index$index
       sub_cooc=cooc_producteurs[index%in%sub_index,list(weight=.N),by=c("variable.x","variable.y")]
       graph=graph.data.frame(sub_cooc)
       graph2=networkD3::igraph_to_networkD3(graph)
@@ -263,16 +280,36 @@ function(input,output,session){
                    NodeID = 'name',Group='group',zoom = TRUE,fontSize=20,opacity = 1)    
       
     })
-    showModal(modalDialog(title="Collaborations entre les producteurs",easyClose = T,size = "m",fade = T,
+    showModal(modalDialog(title=sprintf("Collaboration des producteurs pour la création des %s indicateurs.",nb_indicateurs),size="l",easyClose = T,fade = T,
     
-                          forceNetworkOutput("bases_plot",width = "auto",height = "400px"),footer=NULL
+                          forceNetworkOutput("network",width = "auto",height = "400px"),footer=NULL
                           
                           ))
   })
   onclick("valuebox_sources",{
-    showModal(modalDialog(title="Informations sur les sources des indicateurs filtrés",easyClose = T,size = "m",fade = T,
-                          tags$div(id="modal_sources",
-                                   HTML(paste("Un bon endroit pour afficher des informations complémentaire")))
+    nb_indicateurs=nrow(to_plot())
+    sub_index=to_plot()$index
+    output$network=renderForceNetwork({
+      # sub_index=index$index
+      sub_cooc=cooc_source[index%in%sub_index,list(weight=.N),by=c("variable.x","variable.y")]
+      graph=graph.data.frame(sub_cooc)
+      graph2=networkD3::igraph_to_networkD3(graph)
+      graph2$nodes$group=1
+      graph2$nodes$name=as.character(graph2$nodes$name)
+      node_size=sub_cooc[variable.x==variable.y,c("variable.x","weight")]
+      graph2$nodes=merge(graph2$nodes,node_size,by.x="name",by.y="variable.x")
+      graph2$nodes$weight=sqrt(graph2$nodes$weight)
+      forceNetwork(Links = graph2$links, Nodes = graph2$nodes,Value="value",
+                   Source = 'source', Target = 'target',
+                   linkWidth = networkD3::JS("function(d) { return Math.log(d.value); }"),
+                   Nodesize = "weight", 
+                   NodeID = 'name',Group='group',zoom = TRUE,fontSize=20,opacity = 1)    
+      
+    })
+    showModal(modalDialog(title=sprintf("Rapprochement de sources pour la création des %s indicateurs.",nb_indicateurs),size="l",easyClose = T,fade = T,
+                          
+                          forceNetworkOutput("network",width = "auto",height = "400px"),footer=NULL
+                          
     ))
   })
   # onclick("valuebox_prod_principal",{
@@ -307,7 +344,7 @@ function(input,output,session){
       sunburst(rbind(tags_count),legend = F
       )
     })
-    showModal(modalDialog(title="Informations sur les tags représentés",easyClose = T,size = "m",fade = T,
+    showModal(modalDialog(title="Informations sur les tags représentés",size="l",easyClose = T,fade = T,
                           sunburstOutput("tags_sunburst"),footer=NULL
     ))
   })

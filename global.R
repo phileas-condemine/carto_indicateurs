@@ -16,7 +16,9 @@ library(slickR)
 library(plotly)
 library(sunburstR)
 library(igraph)
-library(visNetwork)
+library(networkD3)
+library(tidytext)
+library(wordcloud2)
 
 ############# DATA PREP #############
 # source("utils/data_prep.R",local = T)
