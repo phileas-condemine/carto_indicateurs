@@ -27,6 +27,7 @@ Maladies respiratoires ;maladies_respiratoires
 Santé mentale ;sante_mentale                                               
 Traumatismes et pathologies accidentelles ;traumatismes_et_pathologies_accidentelles 
 Maladies de l’appareil digestif ;maladies_de_l_appareil_digestif
+Maladie de l'appareil génito-urinaire;maladie_de_l_appareil_genito_urinaire
 THÉMATIQUES TRANSVERSALES;
 Accessibilité géographique, financière, ou autre;accessibilite_geographique_financier_autres
 Coordination et continuité ;coordination_continuite                                     
@@ -35,3 +36,5 @@ E-santé : système d’information de santé, télésanté, télémédecine ;e_sante_syste
 Habitudes de vie et addictions ;habitudes_de_vie_et_addictions                              
 Prévention et dépistage ;prevention_depistage                                        
 Qualité et sécurité des soins;qualite_et_securite_des_soins                               
+Déterminants environnementaux;determinants_environnementaux
+Droits des usagers et démocratie sanitaire;droits_d_usagers_democratie_sanitaire

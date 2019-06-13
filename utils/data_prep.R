@@ -1,7 +1,14 @@
-tags_applied=fread("data/3105_Index des indicateurs tagges.csv",encoding = "Latin-1")
+library(data.table)
+# tags_applied=fread("data/3105_Index des indicateurs tagges.csv",encoding = "Latin-1")
 
 
-index=fread("data/29032018_Index2.csv",encoding = "Latin-1")
+# index=fread("data/29032018_Index2.csv",encoding = "Latin-1")
+
+data=fread("data/20122018_Index_final.csv",encoding = "Latin-1")
+names(data)
+last_info=which(names(data)=="OK_")
+index=data[,1:(last_info-1)]
+
 
 
 acro_extraction=function(nm){
@@ -31,19 +38,29 @@ index$Base=acro_extraction(index$Base)
 # Producteurs[is.na(Producteur_acronyme),Producteur_acronyme:=Producteur]
 # prod_acro=unique(Producteurs$Producteur_acronyme)
 # set.seed(1)
-index=index[,-1]
-
+# index=index[,-1]
 names(index) <- enc2utf8(names(index))
 table(index$Producteur)
+
+
+
 index=index%>%mutate_if(is.character,factor)%>%data.table
 index$random_order=sample(nrow(index))
 setorder(index,random_order)
-load("data/indicateurs_a_tagger.RData")
-tag_pred=indicateurs_pred[,c("indic_id","tag1","tag2","tag3"),with=F]
-setnames(tag_pred,"indic_id","index")
-tag_names=unique(c(as.character(tag_pred$tag1),
-         as.character(tag_pred$tag2),
-         as.character(tag_pred$tag3)))
+# load("data/indicateurs_a_tagger.RData")
+
+tag_pred=data[,c(1,(last_info+1):ncol(data)),with=F]
+names(tag_pred) <- tolower(names(tag_pred))
+table(rowSums(tag_pred[,-1]))
+
+# tag_pred=indicateurs_pred[,c("indic_id","tag1","tag2","tag3"),with=F]
+# setnames(tag_pred,"indic_id","index")
+# tag_pred=tag_pred%>%mutate_at(c("tag1","tag2","tag3"),as.character)%>%data.table
+# tag_names=unique(c(tag_pred$tag1,
+#          tag_pred$tag2,
+#          tag_pred$tag3))
+tag_names=names(data)[(last_info+1):ncol(data)]
+
 tags_class=fread("data/classif_tags.csv")
 tags_class$alias=iconv(tags_class$alias,to="UTF-8")
 tags_class_vec=c(tags_class$valeur)
@@ -57,10 +74,9 @@ class_for_split=rep.int(names(size_classes),size_classes)
 tags_class_vec=tags_class_vec[!tags_class_vec==""]
 tags_class_list=split(tags_class_vec,class_for_split)
 
-# tag_pred$tag1=as.character(tag_pred$tag1)
-# tag_pred$tag2=as.character(tag_pred$tag2)
-# tag_pred$tag3=as.character(tag_pred$tag3)
-tag_pred=tag_pred%>%mutate_at(c("tag1","tag2","tag3"),as.character)%>%data.table
+
+# tag_names[!tolower(tag_names)%in%tags_class_vec]
+# tags_class_vec[!tags_class_vec%in%tolower(tag_names)]
 
 for (i in which(sapply(index,is.factor))){
   print(i)
@@ -74,7 +90,7 @@ for (i in which(sapply(index,is.factor))){
 
 save(tag_pred,
      # prod_acro,
-     index,tags_class_list,tag_names,file="data/init_data.RData")
+     index,tags_class_list,tag_names,file="data/init_data2.RData")
 
 # full_text=pbapply::pbapply(index,1,paste,collapse=" ")
 # save(full_text,file="data/full_text.RData")
@@ -121,8 +137,8 @@ save(stopwords_vec,full_text_split,file="data/term_freq.RData")
 cooc_from_vec=function(vec){
   vec[vec==""]<-"Inconnu"
   vec=strsplit(vec,",")
-  
-  
+
+
   vec=pbapply::pblapply(vec,function(x){
     res<-rep(1,length(x))
     res<-matrix(res,ncol=length(x))

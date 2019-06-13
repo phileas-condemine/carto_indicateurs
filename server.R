@@ -1,15 +1,15 @@
 function(input,output,session){
-  
+
   displayed_notif_about_randomization=reactiveVal(F)
-  
+
   tags_reac=reactiveVal()
-  
+
   to_plot=reactive({
     recherche=input$tag
+    # recherche=names(tag_pred)[c(3,5,10)]
     if (!is.null(recherche)){
-      which_to_keep=rowSums(data.table(tag_pred$tag1%in%recherche,
-                                       tag_pred$tag2%in%recherche,
-                                       tag_pred$tag3%in%recherche))==length(recherche)
+
+      which_to_keep=rowSums(tag_pred[,recherche,with=F])==length(recherche)
       index_to_keep=tag_pred[which_to_keep]$index
     } else {
       index_to_keep=tag_pred$index
@@ -18,37 +18,40 @@ function(input,output,session){
     my_data=droplevels(my_data)
     return(my_data)
   })
-  
-  
+
+
   if(to_mongo_db){
     observeEvent(input$tag,{
       val=paste(input$tag,collapse=" & ")
+      print("val to mongodb")
       print(val)
       db$insert(data.frame(id=id,time=Sys.time(),input="tag",valeur=val))
     })
     observeEvent(input$search_keywords,{
       val=paste(input$search_keywords,collapse=" & ")
+      print("search keywords val")
       print(val)
       db$insert(data.frame(id=id,time=Sys.time(),input="search_keywords",valeur=val))
     })
-    
+
   }
-  
-  
-  
+
+
+
   output$DT_to_render=renderDT({
+    print("search keywords in renderDT")
     print(input$search_keywords)
     if(length(input$tag)>0|length(input$search_keywords)>0){
-      
+
       if(!displayed_notif_about_randomization()){
         showNotification(a("Deux requêtes identiques ne fourniront pas les résultats dans le même ordre.",
-                           href="https://medium.com/@galatea.net/charte-%C3%A9thique-pour-les-algorithmes-publics-b0c5422a54c9"), 
+                           href="https://medium.com/@galatea.net/charte-%C3%A9thique-pour-les-algorithmes-publics-b0c5422a54c9",target="_blank", rel="noopener noreferrer"),
                          duration = 15, closeButton = TRUE, type = "message")
         displayed_notif_about_randomization(T)
       }
-      
-      
-      
+
+
+
       my_datatable=datatable(to_plot()[,input$vars_to_show,with=F],
        extensions = c('Buttons'
                       ,'ColReorder'
@@ -79,7 +82,7 @@ function(input,output,session){
                              text = "Format CSV"),
                         list(extend = "excel",
                              text = "Format Excel")),#c('copy', 'csv', 'excel'),
-         
+
          columnDefs = list(
            list(
              targets = "_all",
@@ -99,24 +102,25 @@ function(input,output,session){
        ),class = "display hover",selection = 'none',rownames=F)
       callModule(module = my_value_boxes,id="valueBoxes",
                  to_plot,reactive(input$DT_to_render_rows_all))
+      print(head(my_datatable))
       my_datatable
     }else {
       callModule(module = my_value_boxes,id="valueBoxes",
                  to_plot,reactive(NULL))
-      
-      
-      
+
+
+
       NULL
     }
   })
-  
-  
+
+
   output$placeholder_DT=renderUI({
     req((length(input$tag)+length(input$search_keywords))==0)
     includeHTML("www/placeholder_datatable.html")
   })
-  
-  
+
+
   observeEvent((length(input$tag)+length(input$search_keywords))==0,{
     isolate({
     if((length(input$tag)==0)&(length(input$search_keywords)==0)&displayed_notif_about_randomization()){#On utilise displayed_notif_about_randomization pour vérifier qu'on n'est pas à la phase d'initialisation ie un tableau a déjà été affiché !
@@ -134,7 +138,7 @@ function(input,output,session){
                           icon("question-circle") %>%
                             bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs.")
                         )))
-      
+
       removeUI(selector = "#tag_div",immediate = T,session=session)
       insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
                ui = div(id="tag_div",class="col-sm-6 inbody_selector",
@@ -152,12 +156,18 @@ function(input,output,session){
 
     }})
   })
-  
+
   observeEvent(c(input$DT_to_render_rows_all),{
     isolate({
-      
-      
-      sub_index=to_plot()[input$DT_to_render_rows_all]$index
+
+
+      sub_index=to_plot()
+      if(length(input$DT_to_render_rows_all)>0){
+        sub_index=sub_index[input$DT_to_render_rows_all]
+        }
+      sub_index=sub_index$index
+
+
       if(length(input$search_keywords)>0|length(input$tag)>0){
         term_freq=full_text_split[index%in%sub_index,list(freq=.N),by="word"]
       } else {
@@ -178,12 +188,19 @@ function(input,output,session){
                           icon("question-circle") %>%
                             bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs.")
                         )))
-      
-      sub_tags=tag_pred[index%in%sub_index,
-                        c("tag1","tag2","tag3")]%>%
-        unlist()%>%
-        unique()
-      
+
+      # sub_tags=tag_pred[index%in%sub_index,
+      #                   c("tag1","tag2","tag3")]%>%
+      #   unlist()%>%
+      #   unique()
+      sub_tags=tag_pred%>%
+        filter(index%in%sub_index)%>%
+        select(-index)%>%
+        colSums()%>%{
+          .[.>0]
+        }%>%
+        names()
+
       currently_selected_tags=input$tag
       if(length(input$search_keywords)>0|length(input$tag)>0){
         sub_tags_class_list=lapply(tags_class_list,function(x)x[x%in%sub_tags])
@@ -201,27 +218,36 @@ function(input,output,session){
                                          icon("question-circle") %>%
                                            bs_embed_tooltip(title = "Choisissez une ou plusieurs thématique(s) de votre choix pour commencer à explorer le catalogue des indicateurs. Sinon vous pouvez également utiliser la recherche par mot-clef.")
                                        )))
-      
+
     })
-    
+
   })
-  
-  
+
+
   onclick("doc_click",{
     showModal(modalDialog(title="Portail des indicateurs",easyClose = T,
                           includeMarkdown("readme.md")
     ))
   })
   onclick("valuebox_indicateurs",{
-    nb_indicateurs=nrow(to_plot())
-      indics=to_plot()%>%select(Indicateur)
+    nb_indicateurs=ifelse(length(input$DT_to_render_rows_all)>0,
+                          length(input$DT_to_render_rows_all),
+                          nrow(to_plot()))
+      print("indics")
+      print(input$DT_to_render_rows_all)
+      indics=to_plot()
+      if (length(input$DT_to_render_rows_all)>0){
+        indics=indics[input$DT_to_render_rows_all]
+        }#%>%dplyr::select(Indicateur)
+      print(indics)
+      indics=indics%>%select(Indicateur)
       # indics=index%>%select(Indicateur)
-      term_count <- indics %>% 
+      term_count <- indics %>%
         unnest_tokens(word, Indicateur)
       term_count <- term_count %>%
         anti_join(data.frame(word=stopwords_vec,stringsAsFactors =F))
       term_count <- term_count %>%
-        count(word, sort = TRUE) 
+        count(word, sort = TRUE)
       output$wordcloud=renderWordcloud2({
       wordcloud2(term_count%>%head(500))
         })
@@ -229,15 +255,25 @@ function(input,output,session){
 
     showModal(modalDialog(title=NULL,size="l",easyClose = T,fade = T,
                           wordcloud2Output("wordcloud"),footer=NULL
-                          
+
     ))
   })
-  onclick("valuebox_bases",{    
-    nb_indicateurs=nrow(to_plot())
+  onclick("valuebox_bases",{
+    nb_indicateurs=ifelse(length(input$DT_to_render_rows_all)>0,
+                          length(input$DT_to_render_rows_all),
+                          nrow(to_plot()))
     output$quick_plot=renderPlotly({
       req(input$Choix_var_quick_stat)
-      stat=to_plot()[,list(count=.N),by=eval(input$Choix_var_quick_stat)]
-      setnames(stat,input$Choix_var_quick_stat,"ventilation")
+      print(input$Choix_var_quick_stat)
+      # var_for_stat=iconv(input$Choix_var_quick_stat,to = "UTF-8")
+      var_for_stat=input$Choix_var_quick_stat
+      print(var_for_stat)
+      stat=to_plot()
+      if(length(input$DT_to_render_rows_all)>0){
+        stat=stat[input$DT_to_render_rows_all]
+      }
+      stat=stat[,list(count=.N),by=eval(var_for_stat)]
+      setnames(stat,var_for_stat,"ventilation")
       stat[,frac:=count/.N]
       if(input$alpha_freq_order){
         stat[,ventilation:=reorder(factor(ventilation),-count)]
@@ -257,12 +293,18 @@ function(input,output,session){
                                     switchInput(inputId = "alpha_freq_order",label = "Ordre",
                                                 value=T,onLabel="Fréquence",offLabel = "Alphabétique",width="100%")),
                           plotlyOutput("quick_plot"),footer=NULL
-                          
+
     ))
   })
   onclick("valuebox_producteurs",{
-    nb_indicateurs=nrow(to_plot())
-    sub_index=to_plot()$index
+    nb_indicateurs=ifelse(length(input$DT_to_render_rows_all)>0,
+                          length(input$DT_to_render_rows_all),
+                          nrow(to_plot()))
+    sub_index=to_plot()
+    if(length(input$DT_to_render_rows_all)>0){
+      sub_index=sub_index[input$DT_to_render_rows_all]
+    }
+    sub_index=sub_index$index
     output$network=renderForceNetwork({
       # sub_index=index$index
       sub_cooc=cooc_producteurs[index%in%sub_index,list(weight=.N),by=c("variable.x","variable.y")]
@@ -276,19 +318,25 @@ function(input,output,session){
       forceNetwork(Links = graph2$links, Nodes = graph2$nodes,Value="value",
                    Source = 'source', Target = 'target',
                    linkWidth = networkD3::JS("function(d) { return Math.log(d.value); }"),
-                   Nodesize = "weight", 
-                   NodeID = 'name',Group='group',zoom = TRUE,fontSize=20,opacity = 1)    
-      
+                   Nodesize = "weight",
+                   NodeID = 'name',Group='group',zoom = TRUE,fontSize=20,opacity = 1)
+
     })
     showModal(modalDialog(title=sprintf("Collaboration des producteurs pour la création des %s indicateurs.",nb_indicateurs),size="l",easyClose = T,fade = T,
-    
+
                           forceNetworkOutput("network",width = "auto",height = "400px"),footer=NULL
-                          
+
                           ))
   })
   onclick("valuebox_sources",{
-    nb_indicateurs=nrow(to_plot())
-    sub_index=to_plot()$index
+    nb_indicateurs=ifelse(length(input$DT_to_render_rows_all)>0,
+                          length(input$DT_to_render_rows_all),
+                          nrow(to_plot()))
+    sub_index=to_plot()
+    if(length(input$DT_to_render_rows_all)>0){
+      sub_index=sub_index[input$DT_to_render_rows_all]
+    }
+    sub_index=sub_index$index
     output$network=renderForceNetwork({
       # sub_index=index$index
       sub_cooc=cooc_source[index%in%sub_index,list(weight=.N),by=c("variable.x","variable.y")]
@@ -302,22 +350,22 @@ function(input,output,session){
       forceNetwork(Links = graph2$links, Nodes = graph2$nodes,Value="value",
                    Source = 'source', Target = 'target',
                    linkWidth = networkD3::JS("function(d) { return Math.log(d.value); }"),
-                   Nodesize = "weight", 
-                   NodeID = 'name',Group='group',zoom = TRUE,fontSize=20,opacity = 1)    
-      
+                   Nodesize = "weight",
+                   NodeID = 'name',Group='group',zoom = TRUE,fontSize=20,opacity = 1)
+
     })
     showModal(modalDialog(title=sprintf("Rapprochement de sources pour la création des %s indicateurs.",nb_indicateurs),size="l",easyClose = T,fade = T,
-                          
+
                           forceNetworkOutput("network",width = "auto",height = "400px"),footer=NULL
-                          
+
     ))
   })
   # onclick("valuebox_prod_principal",{
-  #   
+  #
   #   showModal(modalDialog(title="Informations sur le producteur principal",easyClose = T,size = "m",fade = T,
   #                         tags$div(id="modal_prod_principal",
   #                                  HTML(paste("Un bon endroit pour afficher des informations complémentaire sur le producteur principal"))),
-  #                         
+  #
   #   ))
   # })
   onclick("valuebox_nb_tags",{
@@ -326,12 +374,23 @@ function(input,output,session){
            ,header = FALSE
            ,stringsAsFactors = FALSE
        )[1:100,]
-    indicateurs_index=to_plot()$index
+    indicateurs_index=to_plot()
+    if(length(input$DT_to_render_rows_all)>0){
+      indicateurs_index=indicateurs_index[input$DT_to_render_rows_all]
+    }
+    indicateurs_index=indicateurs_index$index
     # indicateurs_index=index[1:1000,]$index
-    tags_count=tag_pred[index%in%indicateurs_index,
-                c("tag1","tag2","tag3")]%>%
-      unlist()%>%table%>%data.frame
-    names(tags_count) <- c("tags","count")
+    # tags_count=tag_pred[index%in%indicateurs_index,
+    #             c("tag1","tag2","tag3")]%>%
+    #   unlist()%>%table%>%data.frame
+    # names(tags_count) <- c("tags","count")
+
+    tags_count=tag_pred[index%in%indicateurs_index
+                ,tolower(tag_names),with=F]%>%
+      colSums()
+
+    tags_count=data.frame(tags=names(tags_count),count=c(tags_count),stringsAsFactors = F,row.names = NULL)
+
     theme_tag=tags_class_list%>%stack%>%
       mutate_if(is.factor,as.character)%>%
       mutate_all(function(x)gsub(" ","_",x))
@@ -348,11 +407,11 @@ function(input,output,session){
                           sunburstOutput("tags_sunburst"),footer=NULL
     ))
   })
-  
-  
-  
+
+
+
   ##### click sur les boxes du placeholder_datatable
-  
+
   onclick(id = "tags_box",{
     showModal(modalDialog(title="Classement des tags par thématiques",easyClose = T,size = "m",fade = T,
                           tags$img(src="liste_des_tags.png")
@@ -367,33 +426,35 @@ function(input,output,session){
                           footer=NULL
     ))
   })
-  
-  
-  
+
+
+
   observeEvent(input$DT_to_render_cell_clicked,{
     req(input$DT_to_render_cell_clicked)
     if(length(input$DT_to_render_cell_clicked)>0){
       clicked=input$DT_to_render_cell_clicked
       row_clicked=clicked$row
       content=to_plot()[row_clicked]
+      # tags_reac(c(content_tags$tag1,content_tags$tag2,content_tags$tag3))
       content_tags=tag_pred[index==content$index]
-      tags_reac(c(content_tags$tag1,content_tags$tag2,content_tags$tag3))
-      
+      content_tags$index=NULL
+      tags_reac(names(content_tags)[which(content_tags==1)])
       if(to_mongo_db){
         val=content$Indicateur
+        print("to mongodb val")
         print(val)
         db$insert(data.frame(id=id,time=Sys.time(),input="click_indicateur",valeur=val))
       }
-      
-      
-      
+
+
+
       showModal(modalDialog(
         fluidRow(style="color:#0253a3;text-align:center; margin-top:-15px;font-size:large;background-image: linear-gradient(to bottom,#f5f5f5 0,#e8e8e8 100%);",content$Indicateur),
         fluidRow(style="border-width:1px;border-style:ridge;border-color:#f5f5f5;padding-top:10px;padding-bottom:10px;",
                  column(6,{
                    HTML(paste("<b>Base :</b>",content$Base,"<br>",
                               "<b>Producteur de la base :</b>",content$Producteur,"<br>",
-                              "<b>Fréquence d'actualisation:</b>",content$`Fréquence d'actualisation`,"<br>"))
+                              "<b>Fréquence d'actualisation:</b>",content$Frequence_d_actualisation,"<br>"))
                  }),column(6,{
                    HTML(paste("<b>Famille :</b>",content$Famille,"<br>",
                               "<b>Source :</b>",content$Source,"<br>"))
@@ -402,45 +463,23 @@ function(input,output,session){
                  column(12,align="left",style="align:left;display:inline-block;",HTML(
                    paste0("<h2>Instruction pour retrouver l'indicateur sur le site du producteur</h2>",
                           "<ul style='text-align: left;list-style: inside;'>
-                     <li> <a href =",content$hyperlien," target='_blank'>Aller sur le site du producteur de l'indicateur en cliquant ici </a>",
-                          ifelse(!content$`Classement producteur Niveau 1`=="",paste0("<li> puis aller dans  ", content$`Classement producteur Niveau 1`),""),
-                          ifelse(!content$`Classement producteur Niveau 2`=="",paste0("<li> puis aller dans  ", content$`Classement producteur Niveau 2`),""),
-                          ifelse(!content$`Classement producteur Niveau 3`=="",paste0("<li> puis aller dans  ", content$`Classement producteur Niveau 3`),""),
+                     <li> <a href =",content$Acceder_a_la_base," target='_blank' rel='noopener noreferrer'>Aller sur le site du producteur de l'indicateur en cliquant ici </a>",
+                          ifelse(!content$`Classement_producteur_Niveau_1__`=="",paste0("<li> puis aller dans  ", content$`Classement_producteur_Niveau_1__`),""),
+                          ifelse(!content$`Classement_producteur_Niveau_2`=="",paste0("<li> puis aller dans  ", content$`Classement_producteur_Niveau_2`),""),
+                          ifelse(!content$`Classement_producteur_Niveau_3__`=="",paste0("<li> puis aller dans  ", content$`Classement_producteur_Niveau_3__`),""),
                           "</ul>"))))
-        # ,footer = tagList(
-        # actionButton("tag1",label = content_tags$tag1),
-        # actionButton("tag2",label = content_tags$tag2),
-        # actionButton("tag3",label = content_tags$tag3)
-        ,fluidRow(column(6),infoBox(title="Site du producteur",value="Pour retrouver l'indicateur, les instructions ci-dessus",
-                 href = sprintf("javascript:void(window.open('%s', '_blank'))", 
-                                content$hyperlien),
-                 icon = icon("door-open"),width = 6))
+        ,fluidRow(infoBox(title="Site du producteur",value="Pour retrouver l'indicateur, suivez les instructions ci-dessus.",
+                 href = sprintf('javascript:void(window.open("%s", "_blank", rel="noopener noreferrer"))',
+                                content$Acceder_a_la_base),
+                 icon = icon("door-open"),width = 12))
         ,footer=NULL
-        
-        
+
+
         ,easyClose =T,size="l"))
     }
   })
-  # observeEvent(c(input$tag1,input$tag2,input$tag3),{
-  #   # Ajout de filtres par tagg depuis le menu de l'indicateur
-  #   tags_clicked=c(input$tag1%%2,input$tag2%%2,input$tag3%%2)
-  #   tags_clicked=which(tags_clicked==1)
-  #   currently_selected=input$tag
-  #   new_selection=c(currently_selected,tags_reac()[tags_clicked])
-  #   if(length(tags_clicked)>0){
-  #     updateSelectizeInput(inputId = "tag",session = session,selected=new_selection)
-  #     # removeUI(selector = ".shiny-input-container",multiple = F,session = session,immediate = T)
-  #     # insertUI(session = session,selector = "#tags_select_bar",where = "afterBegin",
-  #     #          ui=selectInput(inputId = "tag",
-  #     #                 label = "Recherche par tags",choices = tag_names,
-  #     #                 selected = new_selection,multiple = T),immediate = F)
-  # 
-  #     showNotification(sprintf(ifelse(length(tags_reac()[tags_clicked])==1,
-  #                                     "Le tag %s vient d'être ajouté","Les tags %s viennent d'être ajoutés"),
-  #                              paste(tags_reac()[tags_clicked],collapse=", ")),type = "message",id="add_tag")
-  #   }
-  # })
-  
+
+
   addPopover(session,id = "tags_select_bar",title = "Filtrage par thématiques",placement="right",
              options= list(container = "body"),
              content = "Vous pouvez sélectionner plusieurs thématiques pour
@@ -452,25 +491,25 @@ function(input,output,session){
              content = "Ce menu vous permet de sélectionner les variables à afficher
              dans le tableau central"
   )
-  
-  addPopover(session,id = "DataTables_Table_0_filter",title = "Recherche par mots clés",
-             placement="left",# options= list(container = "body"),
-             content = 'Filtrer les indicateurs par mots clés,
-             par exemple en écrivant "DREES"'
-  )
+
+  # addPopover(session,id = "DataTables_Table_0_filter",title = "Recherche par mots clés",
+  #            placement="left",# options= list(container = "body"),
+  #            content = 'Filtrer les indicateurs par mots clés,
+  #            par exemple en écrivant "DREES"'
+  # )
   # addPopover(session,id = "vars_select_bar",title = "Choix des variables", placement="right",
   #            options= list(container = "body"),
   #            content = "Ce menu vous permet de sélectionner les variables à afficher
   #            dans le tableau central."
   # )
-  
+
   # dataTables_filter
-  
+
   # addPopover(session,id = "DT_to_render",title = "Indicateurs",
   #            options= list(),placement = "top",
   #            content = "Cliquez pour en savoir plus sur cet indicateur"
   # )
-  
+
   # https://stackoverflow.com/questions/41351199/how-to-code-a-sidebar-collapse-in-shiny-to-show-only-icons
   runjs({'
         var el2 = document.querySelector(".skin-blue");
@@ -478,9 +517,9 @@ function(input,output,session){
         var clicker = document.querySelector(".sidebar-toggle");
         clicker.id = "switchState";
     '})
-  
-  
-  
+
+
+
   onclick('switchState', runjs({'
     var title = document.querySelector(".logo")
     if (title.style.visibility == "hidden") {
@@ -489,9 +528,9 @@ function(input,output,session){
     title.style.visibility = "hidden";*/
     }
     '}))
-  
+
   output$slicker_carousel=renderSlickR(s1)
   # output$slicker_carousel=renderSlickR(slickr_carousel)
-  
-  
+
+
 }

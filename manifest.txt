@@ -1,12 +1,12 @@
 ui.R
 global.R
 server.R
-data/init_data.RData
+data/init_data2.RData
 readme.md
 www/my_styles.css
 www/cookie_handler.html
-www/carto_icon.png
-www/github_icon.png
+www/carto_icon2.png
+www/github_icon2.png
 www/Marianne.png
 www/Logo_Drees.jpg
 www/jsCode.js
@@ -15,8 +15,8 @@ www/footer_catalogue.html
 www/footer_accueil.html
 www/custom_DT.js
 www/accueil.html
-www/drees_icon.png
-www/mss_icon.jpg
+www/drees_icon.jpg
+www/mss_icon2.jpg
 www/DSSIS.png
 data/term_freq.RData
 www/hide_when_loading.js
@@ -26,3 +26,4 @@ utils/create_carousel.R
 www/style_dot_imgs.js
 data/producteurs.csv
 data/cooc.RData
+www/placeholder_datatable.html

@@ -8,19 +8,19 @@ dashboardPage(
                            tags$ul(class = "nav navbar-nav",
                                    tags$li(id="logo_ministere",
                                            a(tags$i(class="fa icon_ministere text-success vert_center"),"Solidarités Santé",href="http://solidarites-sante.gouv.fr/",
-                                             target="_blank")),
+                                             target="_blank",  rel="noopener noreferrer")),
                                    tags$li(id="logo_drees",
                                            a(tags$i(class="fa icon_drees text-success vert_center"),"Développeur",href="http://drees.solidarites-sante.gouv.fr/etudes-et-statistiques/",
-                                             target="_blank")),
+                                             target="_blank",  rel="noopener noreferrer")),
                                    # https://resizeimage.net/
                                    
                                    tags$li(id="doc_click",
                                            a(tags$i(class="fa icon_carto text-success vert_center"),"A propos",
-                                             target="_blank"),style='cursor:pointer;'),
+                                             target="_blank",  rel="noopener noreferrer"),style='cursor:pointer;'),
                                    
                                    tags$li(id="Github",
                                            a(tags$i(class="fa icon_github text-success vert_center"),"Code Source",href="https://github.com/phileas-condemine/carto_indicateurs",
-                                             target="_blank"))
+                                             target="_blank",  rel="noopener noreferrer"))
                            )))
               ,includeCSS("www/my_styles.css")
               ,includeHTML('www/cookie_handler.html')

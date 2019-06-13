@@ -1,4 +1,4 @@
-# options(shiny.reactlog=TRUE)
+library(reactlog)
 library(dplyr)
 library(data.table)
 library(DT)
@@ -19,6 +19,7 @@ library(igraph)
 library(networkD3)
 library(tidytext)
 library(wordcloud2)
+options(shiny.reactlog=TRUE)
 
 ############# DATA PREP #############
 # source("utils/data_prep.R",local = T)
@@ -30,7 +31,8 @@ if (!exists("default_search")) default_search <- ""
 if (!exists("default_search_columns")) default_search_columns <- NULL
 
 
-load("data/init_data.RData")
+load("data/init_data2.RData")
+names(index) <- iconv(names(index),to = "UTF-8")
 index[,random_order:=sample(.N)]
 setorder(index,random_order)
 
@@ -123,11 +125,17 @@ observe({
 
   })
   output$nb_tags=renderValueBox({
+
+    # nm=tag_pred[index%in%my_data$index,
+    #             c("tag1","tag2","tag3")]%>%
+    #   unlist()%>%
+    #   # {c(.$tag1,.$tag2,.$tag3)}%>%
+    #   unique()%>%length()
     nm=tag_pred[index%in%my_data$index,
-                c("tag1","tag2","tag3")]%>%
-      unlist()%>%
-      # {c(.$tag1,.$tag2,.$tag3)}%>%
-      unique()%>%length()
+                tolower(tag_names),with=F]%>%
+      colSums()
+    nm = nm[nm>0]
+    nm = length(nm)
     box1<-valueBox(value=nm,
              # sapply(prod_acro,function(x)sum(grepl(pattern = x,my_data$Producteur)))%>%sort(decreasing = T)%>%head(1)%>%names
              # IL Y A QQCH A FAIRE AUTOUR DE overflow: auto; https://www.w3schools.com/css/css_align.asp
