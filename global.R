@@ -19,6 +19,8 @@ library(igraph)
 library(networkD3)
 library(tidytext)
 library(wordcloud2)
+library(wordcloud)
+
 options(shiny.reactlog=TRUE)
 
 ############# DATA PREP #############
@@ -32,7 +34,11 @@ if (!exists("default_search_columns")) default_search_columns <- NULL
 
 
 load("data/init_data2.RData")
-names(index) <- iconv(names(index),to = "UTF-8")
+# names(index) <- iconv(names(index),to = "UTF-8")
+# index <- index %>% mutate_if(is.character,iconv,from="latin1",to="UTF-8")
+# index <- data.table(index)
+# save(tag_pred,index,tags_class_list,tag_names,file="data/init_data2.RData")
+
 index[,random_order:=sample(.N)]
 setorder(index,random_order)
 

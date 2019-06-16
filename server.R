@@ -132,8 +132,11 @@ function(input,output,session){
                ui = div(id="search_keywords_div",class="col-sm-6 inbody_selector",
                         selectizeInput(inputId="search_keywords",
                                        label = "Recherche par mot(s) clef(s)",
-                                       choices = term_freq$word,
-                                       multiple=T,options = list(plugins= list('remove_button'),placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...')
+                                       choices = setNames(term_freq$freq, term_freq$word),
+                                       multiple=T,options = list(closeAfterSelect = TRUE,
+                                                                 create = TRUE,plugins= list('remove_button'),
+                                                                 render = I(JS(readLines("render_selectizeInput_keywords.js"))),
+                                                                 placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...')
                         )%>%shinyInput_label_embed(
                           icon("question-circle") %>%
                             bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs.")
@@ -146,7 +149,7 @@ function(input,output,session){
                                        label = "Recherche par tags",
                                        choices = tags_class_list,#selectize = F,size = length(tag_names)+5,
                                        multiple=T,
-                                       options = list(plugins= list('remove_button'),
+                                       options = list(closeAfterSelect = TRUE,plugins= list('remove_button'),
                                                       placeholder = sprintf('Ajoutez un filtre en choisissant parmi les %s thématiques liées à la santé',length(unlist(tags_class_list))))
                         )%>%shinyInput_label_embed(
                           icon("question-circle") %>%
@@ -182,8 +185,11 @@ function(input,output,session){
                         selectizeInput(inputId="search_keywords",
                                        label = "Recherche par mot(s) clef(s)",
                                        selected = currently_selected_keywords,
-                                       choices = term_freq$word,
-                                       multiple=T,options = list(plugins= list('remove_button'),placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...')
+                                       choices = setNames(term_freq$freq, term_freq$word),
+                                       multiple=T,options = list(closeAfterSelect = TRUE,
+                                                                 create = TRUE,plugins= list('remove_button'),
+                                                                 render = I(JS(readLines("render_selectizeInput_keywords.js"))),
+                                                                 placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...')
                         )%>%shinyInput_label_embed(
                           icon("question-circle") %>%
                             bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs.")
@@ -210,7 +216,7 @@ function(input,output,session){
       removeUI(selector = "#tag_div",immediate = T,session=session)
       insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
                ui = div(id="tag_div",class="col-sm-6 inbody_selector",
-                        selectizeInput(inputId="tag",options=list(plugins= list('remove_button'),placeholder = sprintf('Ajoutez un filtre en choisissant parmi les %s thématiques liées à la santé',length(unlist(tags_class_list)))),
+                        selectizeInput(inputId="tag",options=list(closeAfterSelect = TRUE,plugins= list('remove_button'),placeholder = sprintf('Ajoutez un filtre en choisissant parmi les %s thématiques liées à la santé',length(unlist(tags_class_list)))),
                                        label = "Recherche par tags",
                                        selected = currently_selected_tags,
                                        choices = sub_tags_class_list,#selectize = F,size = length(tag_names)+5,
@@ -229,6 +235,7 @@ function(input,output,session){
                           includeMarkdown("readme.md")
     ))
   })
+  wordcloud_rep <- repeatable(wordcloud)
   onclick("valuebox_indicateurs",{
     nb_indicateurs=ifelse(length(input$DT_to_render_rows_all)>0,
                           length(input$DT_to_render_rows_all),
@@ -248,13 +255,23 @@ function(input,output,session){
         anti_join(data.frame(word=stopwords_vec,stringsAsFactors =F))
       term_count <- term_count %>%
         count(word, sort = TRUE)
-      output$wordcloud=renderWordcloud2({
-      wordcloud2(term_count%>%head(500))
-        })
+      print("wordcloud")
+      print(term_count%>%head(10))
+      output$wordcloud_static <- renderPlot({
+        wordcloud_rep(term_count$word, term_count$n, scale=c(4,0.5),
+                      min.freq = term_count$n[100], max.words=100,
+                      colors=brewer.pal(8, "Dark2"))
+      })
+      # output$wordcloud=renderWordcloud2({
+      # wordcloud2(term_count%>%head(500))
+      #   })
 
 
     showModal(modalDialog(title=NULL,size="l",easyClose = T,fade = T,
-                          wordcloud2Output("wordcloud"),footer=NULL
+                          # wordcloud2Output("wordcloud"),
+                          plotOutput("wordcloud_static",width = "100%"),
+                          
+                          footer=NULL
 
     ))
   })

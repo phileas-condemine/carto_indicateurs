@@ -4,8 +4,11 @@ library(data.table)
 
 # index=fread("data/29032018_Index2.csv",encoding = "Latin-1")
 
-data=fread("data/20122018_Index_final.csv",encoding = "Latin-1")
-names(data)
+# data=fread("data/20122018_Index_final.csv",encoding = "Latin-1")
+
+data=fread("data/20122018_Index_final_libreOfficeUTF8.csv",encoding = "UTF-8")
+# names(data)
+# data$Indicateur
 last_info=which(names(data)=="OK_")
 index=data[,1:(last_info-1)]
 
@@ -39,14 +42,7 @@ index$Base=acro_extraction(index$Base)
 # prod_acro=unique(Producteurs$Producteur_acronyme)
 # set.seed(1)
 # index=index[,-1]
-names(index) <- enc2utf8(names(index))
-table(index$Producteur)
 
-
-
-index=index%>%mutate_if(is.character,factor)%>%data.table
-index$random_order=sample(nrow(index))
-setorder(index,random_order)
 # load("data/indicateurs_a_tagger.RData")
 
 tag_pred=data[,c(1,(last_info+1):ncol(data)),with=F]
@@ -61,8 +57,8 @@ table(rowSums(tag_pred[,-1]))
 #          tag_pred$tag3))
 tag_names=names(data)[(last_info+1):ncol(data)]
 
-tags_class=fread("data/classif_tags.csv")
-tags_class$alias=iconv(tags_class$alias,to="UTF-8")
+tags_class=fread("data/classif_tags.csv",encoding="UTF-8")
+# tags_class$alias=iconv(tags_class$alias,to="UTF-8")
 tags_class_vec=c(tags_class$valeur)
 names(tags_class_vec) <- tags_class$alias
 
@@ -78,15 +74,23 @@ tags_class_list=split(tags_class_vec,class_for_split)
 # tag_names[!tolower(tag_names)%in%tags_class_vec]
 # tags_class_vec[!tags_class_vec%in%tolower(tag_names)]
 
-for (i in which(sapply(index,is.factor))){
-  print(i)
-  table(Encoding(levels(index[[i]])))
-  levels(index[[i]]) <- iconv(levels(index[[i]]),"latin1","UTF-8")
-  index[[i]] <- as.character(index[[i]])
-  index[[i]] <- enc2native(index[[i]])
-  table(Encoding(index[[i]]))
-
-}
+# index$Indicateur
+# names(index) <- enc2utf8(names(index))
+# table(index$Producteur)
+# index=index%>%mutate_if(is.character,factor)%>%data.table
+# index$random_order=sample(nrow(index))
+# setorder(index,random_order)
+# for (i in which(sapply(index,is.factor))){
+#   print(i)
+#   table(Encoding(levels(index[[i]])))
+#   levels(index[[i]]) <- iconv(levels(index[[i]]),"latin1","UTF-8")
+#   index[[i]] <- as.character(index[[i]])
+#   index[[i]] <- gsub("’","'",index[[i]])
+#   # index[[i]] <- enc2native(index[[i]])
+#   table(Encoding(index[[i]]))
+# 
+# }
+names(index) <- iconv(names(index),to = "UTF-8")
 
 save(tag_pred,
      # prod_acro,
