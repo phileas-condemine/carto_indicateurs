@@ -1,5 +1,9 @@
 function(input,output,session){
 
+  observe({
+  print(session$clientData$url_search)
+  })
+  
   displayed_notif_about_randomization=reactiveVal(F)
 
   tags_reac=reactiveVal()
@@ -72,7 +76,7 @@ function(input,output,session){
            paginate = list(previous = 'Précédent', `next` = 'Suivant'),
            lengthMenu='Afficher _MENU_ résultats'
            ),
-         dom = "tBpl",# "Blftipr"
+         dom = "Btpl",# "Blftipr"
          initComplete = JS(readLines("www/custom_DT.js")),#custom_DT,
          scrollX=F,
          pageLength = 50,
@@ -102,7 +106,7 @@ function(input,output,session){
        ),class = "display hover",selection = 'none',rownames=F)
       callModule(module = my_value_boxes,id="valueBoxes",
                  to_plot,reactive(input$DT_to_render_rows_all))
-      print(head(my_datatable))
+      # print(head(my_datatable))
       my_datatable
     }else {
       callModule(module = my_value_boxes,id="valueBoxes",
@@ -132,15 +136,22 @@ function(input,output,session){
                ui = div(id="search_keywords_div",class="col-sm-6 inbody_selector",
                         selectizeInput(inputId="search_keywords",
                                        label = "Recherche par mot(s) clef(s)",
-                                       choices = setNames(term_freq$freq, term_freq$word),
-                                       multiple=T,options = list(closeAfterSelect = TRUE,
-                                                                 create = TRUE,plugins= list('remove_button'),
-                                                                 render = I(JS(readLines("render_selectizeInput_keywords.js"))),
-                                                                 placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...')
+                                       choices = setNames(term_freq$word,paste0(term_freq$word,' (',term_freq$freq,')')),
+                                       multiple=T,
+                                       options = list(closeAfterSelect = TRUE,
+                                                      create = TRUE,plugins= list('remove_button'),
+                                                      # render = I(JS(readLines("render_selectizeInput_keywords.js"))),
+                                                      placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...')
                         )%>%shinyInput_label_embed(
                           icon("question-circle") %>%
                             bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs.")
                         )))
+      # updateSelectizeInput(session,inputId = "search_keywords",server=T,selected = currently_selected_keywords,
+      #                      choices = term_freq%>%mutate(label=word)%>%rename(value=word),
+      #                      options = list(closeAfterSelect = TRUE,
+      #                                                create = TRUE,plugins= list('remove_button'),
+      #                                                render = I(JS(readLines("render_selectizeInput_keywords.js"))),
+      #                                                placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...'))
 
       removeUI(selector = "#tag_div",immediate = T,session=session)
       insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
@@ -185,7 +196,9 @@ function(input,output,session){
                         selectizeInput(inputId="search_keywords",
                                        label = "Recherche par mot(s) clef(s)",
                                        selected = currently_selected_keywords,
-                                       choices = setNames(term_freq$freq, term_freq$word),
+                                       # choices = term_freq$word,
+                                       choices = setNames(term_freq$word,paste0(term_freq$word,' (',term_freq$freq,')')),
+                                       
                                        multiple=T,options = list(closeAfterSelect = TRUE,
                                                                  create = TRUE,plugins= list('remove_button'),
                                                                  render = I(JS(readLines("render_selectizeInput_keywords.js"))),

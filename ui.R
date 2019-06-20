@@ -73,11 +73,14 @@ dashboardPage(
                     div(id="search_keywords_div",class="col-sm-6 inbody_selector",
                         selectizeInput(inputId="search_keywords",
                                        label = "Recherche par mot(s) clef(s)",
-                                       choices = setNames(term_freq_global$freq, term_freq_global$word),
-                                       multiple=T,options = list(closeAfterSelect = TRUE,
-                                                                 create = TRUE,plugins= list('remove_button'),
-                                                                 render = I(JS(readLines("render_selectizeInput_keywords.js"))),
-                                                                 placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...')
+                                       # choices = term_freq_global$word,
+                                       choices = setNames(term_freq_global$word,paste0(term_freq_global$word,' (',term_freq_global$freq,')')),
+                                       
+                                       multiple=T,
+                                       options = list(closeAfterSelect = TRUE,
+                                                      create = TRUE,plugins= list('remove_button'),
+                                                      # render = I(JS(readLines("render_selectizeInput_keywords.js"))),
+                                                      placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...')
                         )%>%shinyInput_label_embed(
                           icon("question-circle") %>%
                             bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs. Les mots-clefs sont triés par fréquence.")

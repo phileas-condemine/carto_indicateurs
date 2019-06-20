@@ -104,7 +104,7 @@ init_vars_to_show=
   c("Base","Indicateur",
     # "Famille",
     # "Source",
-    "Producteur"
+    "Producteurs"
     # ,"Classement producteur Niveau 3"
     # ,"Classement producteur Niveau 2"
     # ,"Classement producteur Niveau 1"
@@ -124,7 +124,8 @@ full_text_split=unlist(full_text_split)
 full_text_split=data.table(index=names(full_text_split),
                            word=unname(full_text_split))
 full_text_split$index=stringr::str_extract(full_text_split$index,"^.+_")
-full_text_split$index=substr(full_text_split$index,1,str_length(full_text_split$index)-1)
+full_text_split$index=gsub("_","",full_text_split$index)
+# full_text_split$index=substr(full_text_split$index,1,str_length(full_text_split$index)-1)
 
 
 full_text_split=unique(full_text_split)
@@ -132,7 +133,7 @@ full_text_split=full_text_split[!grepl(pattern = "^(([0-9])|( ))+$",
                                        full_text_split$word)]
 stopwords_vec=stopwords::stopwords(language = "fr")
 stopwords_vec=c(stopwords_vec,"na"," ","")
-full_text_split$word <- enc2native(full_text_split$word)
+# full_text_split$word <- enc2native(full_text_split$word)
 save(stopwords_vec,full_text_split,file="data/term_freq.RData")
 
 
