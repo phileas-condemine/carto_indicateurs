@@ -92,7 +92,7 @@ tags_class_list=split(tags_class_vec,class_for_split)
 # }
 names(index) <- iconv(names(index),to = "UTF-8")
 
-save(tag_pred,
+save(tag_pred,tags_class_vec,
      # prod_acro,
      index,tags_class_list,tag_names,file="data/init_data2.RData")
 

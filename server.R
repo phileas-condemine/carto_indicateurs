@@ -2,6 +2,8 @@ function(input,output,session){
 
   observe({
   print(session$clientData$url_search)
+    
+    
   })
   
   displayed_notif_about_randomization=reactiveVal(F)
@@ -40,7 +42,29 @@ function(input,output,session){
 
   }
 
-
+  
+  output$get_url_button=renderUI({
+    print("search keywords in renderDT")
+    print(input$search_keywords)
+    if(length(input$tag)>0|length(input$search_keywords)>0){
+      actionButton("get_url_button","Obtenir un lien URL",icon = icon('link'))
+    } else{
+      NULL
+    }
+    })
+  
+  observeEvent(input$get_url_button,{
+    tags_picked=which(tags_class_vec%in%input$tag)
+    tags_picked=paste(tags_picked,collapse="_")
+    words_picked=which(term_freq_global$word%in%input$search_keywords)
+    words_picked=paste(words_picked,collapse="_")
+    print("url")
+    url=paste0("?q=",ifelse(length(input$tag)>0,paste0("tags%in%",tags_picked),""),
+               ifelse(length(input$tag)>0&length(input$search_keywords)>0,"&",""),
+               ifelse(length(input$search_keywords)>0,paste0("words%in%",words_picked),""))
+    print(url)
+    
+  })
 
   output$DT_to_render=renderDT({
     print("search keywords in renderDT")

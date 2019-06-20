@@ -87,6 +87,7 @@ dashboardPage(
                         ))),
                   fluidRow(
                     div(id="placeholder_datatable",htmlOutput("placeholder_DT")),
+                    div(id="get_URL_button",htmlOutput("get_url_button")),
                     div(id="carto_datatable",dataTableOutput("DT_to_render")))),
               includeHTML("www/footer_catalogue.html"))
     )
