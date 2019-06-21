@@ -1,10 +1,6 @@
 function(input,output,session){
 
-  observe({
-  print(session$clientData$url_search)
-    
-    
-  })
+  
   
   displayed_notif_about_randomization=reactiveVal(F)
 
@@ -42,18 +38,17 @@ function(input,output,session){
 
   }
 
-  
   output$get_url_button=renderUI({
-    print("search keywords in renderDT")
-    print(input$search_keywords)
+    # print("search keywords in renderDT")
+    # print(input$search_keywords)
     if(length(input$tag)>0|length(input$search_keywords)>0){
-      actionButton("get_url_button","Obtenir un lien URL",icon = icon('link'))
+      actionButton("get_url_actionbutton","Obtenir un lien URL",icon = icon('link'))
     } else{
       NULL
     }
     })
-  
-  observeEvent(input$get_url_button,{
+  url_to_cliboard=reactiveVal("")
+  observeEvent(input$get_url_actionbutton,{
     tags_picked=which(tags_class_vec%in%input$tag)
     tags_picked=paste(tags_picked,collapse="_")
     words_picked=which(term_freq_global$word%in%input$search_keywords)
@@ -62,8 +57,22 @@ function(input,output,session){
     url=paste0("?q=",ifelse(length(input$tag)>0,paste0("tags%in%",tags_picked),""),
                ifelse(length(input$tag)>0&length(input$search_keywords)>0,"&",""),
                ifelse(length(input$search_keywords)>0,paste0("words%in%",words_picked),""))
+    url=paste0(session$clientData$url_hostname,":",session$clientData$url_port,session$clientData$url_pathname,url)
     print(url)
+    url_to_cliboard(url)
+    showModal(modalDialog(title="Lien direct vers cette page",
+                          easyClose = T,footer = NULL,size = "s",
+                          tags$div(tags$p(tags$strong(url)),
+                          actionButton(inputId = "clipbtn", "Copier dans le presse papier",
+                                        icon = icon("clipboard")))
+    ))
     
+  })
+  
+  onclick("clipbtn",{
+    clipr::write_clip(url_to_cliboard())
+    showNotification(tags$p("L'adresse a été copiée dans le presse-papier avec succès !"),
+                     duration = 5, closeButton = TRUE, type = "message")
   })
 
   output$DT_to_render=renderDT({
@@ -533,6 +542,38 @@ function(input,output,session){
     }
   })
 
+  observe({
+    # IL FAUDRAIT QUE CA SE DECLENCHE LORSQUE LES SELECTIZEINPUT SONT DEJA READY
+    # ?q=tags%in%4_27&words%in%41_151_2479
+    print(session$clientData$url_search)
+    url=session$clientData$url_search
+    # url="?q=tags%in%4_27&words%in%41_151_2479"
+    # url="?q=tags%in%4_27"
+    # url="?q=words%in%41_151_2479"
+    
+    words=stringr::str_extract(url,"(words).+$")
+    if(!is.na(words)){
+      words=gsub("words%in%","",words)
+      words=strsplit(words,"_")[[1]]%>%as.numeric
+      words=term_freq_global$word[words]
+      updateSelectInput(session,"search_keywords",selected=words)
+      
+    } else {
+      words=NULL
+    }
+    tags=gsub("(words).+$","",url)%>%stringr::str_extract("(tags).+$")
+    print(tags)
+    if(!is.na(tags)){
+      tags=gsub("&$","",tags)
+      tags=gsub("tags%in%","",tags)
+      tags=strsplit(tags,"_")[[1]]%>%as.numeric
+      tags=tags_class_vec[tags]
+      updateSelectInput(session,"tag",selected=tags)
+    } else{
+      tags=NULL
+    }
+  })
+  
 
   addPopover(session,id = "tags_select_bar",title = "Filtrage par thématiques",placement="right",
              options= list(container = "body"),

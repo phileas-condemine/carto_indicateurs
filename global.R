@@ -20,7 +20,7 @@ library(networkD3)
 library(tidytext)
 library(wordcloud2)
 library(wordcloud)
-
+library(clipr)
 options(shiny.reactlog=TRUE)
 
 ############# DATA PREP #############
