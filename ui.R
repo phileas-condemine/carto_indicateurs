@@ -26,7 +26,6 @@ dashboardPage(
               ,includeHTML('www/cookie_handler.html')
               ,includeScript("www/hide_when_loading.js")
               ,useShinyjs()  # Set up shinyjs
-              ,rclipboardSetup()
 
               
               
