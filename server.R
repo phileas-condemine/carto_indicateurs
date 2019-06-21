@@ -57,7 +57,9 @@ function(input,output,session){
     url=paste0("?q=",ifelse(length(input$tag)>0,paste0("tags%in%",tags_picked),""),
                ifelse(length(input$tag)>0&length(input$search_keywords)>0,"&",""),
                ifelse(length(input$search_keywords)>0,paste0("words%in%",words_picked),""))
-    url=paste0(session$clientData$url_hostname,":",session$clientData$url_port,session$clientData$url_pathname,url)
+    port=session$clientData$url_port
+    port=ifelse(nchar(port)>0,paste0(":",port),"")
+    url=paste0(session$clientData$url_hostname,port,session$clientData$url_pathname,url)
     print(url)
     url_to_cliboard(url)
     showModal(modalDialog(title="Lien direct vers cette page",
@@ -70,7 +72,7 @@ function(input,output,session){
   })
   
   onclick("clipbtn",{
-    clipr::write_clip(url_to_cliboard())
+    clipr::write_clip(url_to_cliboard(),allow_non_interactive = TRUE)
     showNotification(tags$p("L'adresse a été copiée dans le presse-papier avec succès !"),
                      duration = 5, closeButton = TRUE, type = "message")
   })
