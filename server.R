@@ -51,7 +51,7 @@ function(input,output,session){
   observeEvent(input$get_url_actionbutton,{
     tags_picked=which(tags_class_vec%in%input$tag)
     tags_picked=paste(tags_picked,collapse="_")
-    words_picked=which(term_freq_global$word%in%input$search_keywords)
+    words_picked=term_freq_global[word%in%input$search_keywords]$hash
     words_picked=paste(words_picked,collapse="_")
     print("url")
     url=paste0("?q=",ifelse(length(input$tag)>0,paste0("tags%in%",tags_picked),""),
@@ -234,7 +234,7 @@ function(input,output,session){
                                        
                                        multiple=T,options = list(closeAfterSelect = TRUE,
                                                                  create = TRUE,plugins= list('remove_button'),
-                                                                 render = I(JS(readLines("render_selectizeInput_keywords.js"))),
+                                                                 # render = I(JS(readLines("render_selectizeInput_keywords.js"))),
                                                                  placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...')
                         )%>%shinyInput_label_embed(
                           icon("question-circle") %>%
@@ -551,11 +551,11 @@ function(input,output,session){
     # url="?q=tags%in%4_27"
     # url="?q=words%in%41_151_2479"
     
-    words=stringr::str_extract(url,"(words).+$")
-    if(!is.na(words)){
-      words=gsub("words%in%","",words)
-      words=strsplit(words,"_")[[1]]%>%as.numeric
-      words=term_freq_global$word[words]
+    words_h=stringr::str_extract(url,"(words).+$")
+    if(!is.na(words_h)){
+      words_h=gsub("words%in%","",words_h)
+      words_h=strsplit(words_h,"_")[[1]]
+      words=term_freq_global[hash%in%words_h]$word
       updateSelectInput(session,"search_keywords",selected=words)
       
     } else {

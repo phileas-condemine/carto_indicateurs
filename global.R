@@ -65,6 +65,9 @@ load("data/term_freq.RData")
 
 term_freq=full_text_split[,list(freq=.N),by="word"]
 term_freq_global=term_freq[!word%in%stopwords_vec]
+term_freq_global$hash=openssl::md5(term_freq_global$word)%>%substr(1,7)
+
+term_freq_global%>%group_by(hash)%>%summarise(count=n())%>%arrange(-count)%>%head
 setorder(term_freq_global,-freq)
 # term_freq
 
