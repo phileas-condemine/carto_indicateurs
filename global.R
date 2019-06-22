@@ -18,9 +18,11 @@ library(sunburstR)
 library(igraph)
 library(networkD3)
 library(tidytext)
-library(wordcloud2)
+# library(wordcloud2)
 library(wordcloud)
 library(clipr)
+library(rclipboard)
+
 options(shiny.reactlog=TRUE)
 
 ############# DATA PREP #############
@@ -206,3 +208,10 @@ source("utils/create_carousel.R",local=T)
 tags_class_list=tags_class_list[c(3,4,2,1)]
 
 load("data/cooc.RData")
+# 
+# bookmark.modal.js = "$('.ui.mini.modal')
+# .modal({
+#     blurring: false
+# })
+# $('#bookmark_modal').modal('show')
+# ;"

@@ -37,18 +37,19 @@ function(input,output,session){
     })
 
   }
+  
 
   output$get_url_button=renderUI({
-    # print("search keywords in renderDT")
-    # print(input$search_keywords)
     if(length(input$tag)>0|length(input$search_keywords)>0){
-      actionButton("get_url_actionbutton","Obtenir un lien URL",icon = icon('link'))
+      rclipButton("clipbtn", "Partager",
+                  url_to_bookmark(), icon = icon("clipboard"))
     } else{
       NULL
     }
     })
-  url_to_cliboard=reactiveVal("")
-  observeEvent(input$get_url_actionbutton,{
+
+  url_to_bookmark = reactive({
+    print("update clip button")
     tags_picked=which(tags_class_vec%in%input$tag)
     tags_picked=paste(tags_picked,collapse="_")
     words_picked=term_freq_global[word%in%input$search_keywords]$hash
@@ -59,27 +60,23 @@ function(input,output,session){
                ifelse(length(input$search_keywords)>0,paste0("words%in%",words_picked),""))
     port=session$clientData$url_port
     port=ifelse(nchar(port)>0,paste0(":",port),"")
-    url=paste0(session$clientData$url_hostname,port,session$clientData$url_pathname,url)
-    print(url)
-    url_to_cliboard(url)
-    showModal(modalDialog(title="Lien direct vers cette page",
-                          easyClose = T,footer = NULL,size = "s",
-                          tags$div(tags$p(tags$strong(url)),
-                          actionButton(inputId = "clipbtn", "Copier dans le presse papier",
-                                        icon = icon("clipboard")))
-    ))
+    protocol=session$clientData$url_protocol
+    protocol=ifelse(nchar(protocol)>0,paste0(protocol,"//"),"")
     
+    url=paste0(protocol,session$clientData$url_hostname,
+               port,session$clientData$url_pathname,url)
+    url
   })
+
   
   onclick("clipbtn",{
-    clipr::write_clip(url_to_cliboard(),allow_non_interactive = TRUE)
-    showNotification(tags$p("L'adresse a été copiée dans le presse-papier avec succès !"),
+    showNotification(tags$p("L'adresse (URL) a été copiée dans le presse-papier avec succès !"),
                      duration = 5, closeButton = TRUE, type = "message")
   })
 
   output$DT_to_render=renderDT({
-    print("search keywords in renderDT")
-    print(input$search_keywords)
+    # print("search keywords in renderDT")
+    # print(input$search_keywords)
     if(length(input$tag)>0|length(input$search_keywords)>0){
 
       if(!displayed_notif_about_randomization()){
@@ -111,7 +108,7 @@ function(input,output,session){
            paginate = list(previous = 'Précédent', `next` = 'Suivant'),
            lengthMenu='Afficher _MENU_ résultats'
            ),
-         dom = "Btpl",# "Blftipr"
+         dom = "tBpl",# "Blftipr"
          initComplete = JS(readLines("www/custom_DT.js")),#custom_DT,
          scrollX=F,
          pageLength = 50,
@@ -168,7 +165,7 @@ function(input,output,session){
       setorder(term_freq,-freq)
       removeUI(selector = "#search_keywords_div",immediate = T,session=session)
       insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
-               ui = div(id="search_keywords_div",class="col-sm-6 inbody_selector",
+               ui = div(id="search_keywords_div",class="col-sm-5 inbody_selector",
                         selectizeInput(inputId="search_keywords",
                                        label = "Recherche par mot(s) clef(s)",
                                        choices = setNames(term_freq$word,paste0(term_freq$word,' (',term_freq$freq,')')),
@@ -190,7 +187,7 @@ function(input,output,session){
 
       removeUI(selector = "#tag_div",immediate = T,session=session)
       insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
-               ui = div(id="tag_div",class="col-sm-6 inbody_selector",
+               ui = div(id="tag_div",class="col-sm-5 inbody_selector",
                         selectizeInput(inputId="tag",
                                        label = "Recherche par tags",
                                        choices = tags_class_list,#selectize = F,size = length(tag_names)+5,
@@ -227,7 +224,7 @@ function(input,output,session){
       currently_selected_keywords=input$search_keywords
       removeUI(selector = "#search_keywords_div",immediate = T,session=session)
       insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
-               ui = div(id="search_keywords_div",class="col-sm-6 inbody_selector",
+               ui = div(id="search_keywords_div",class="col-sm-5 inbody_selector",
                         selectizeInput(inputId="search_keywords",
                                        label = "Recherche par mot(s) clef(s)",
                                        selected = currently_selected_keywords,
@@ -263,7 +260,7 @@ function(input,output,session){
       }
       removeUI(selector = "#tag_div",immediate = T,session=session)
       insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
-               ui = div(id="tag_div",class="col-sm-6 inbody_selector",
+               ui = div(id="tag_div",class="col-sm-5 inbody_selector",
                         selectizeInput(inputId="tag",options=list(closeAfterSelect = TRUE,plugins= list('remove_button'),placeholder = sprintf('Ajoutez un filtre en choisissant parmi les %s thématiques liées à la santé',length(unlist(tags_class_list)))),
                                        label = "Recherche par tags",
                                        selected = currently_selected_tags,

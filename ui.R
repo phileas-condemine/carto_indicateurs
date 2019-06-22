@@ -26,6 +26,7 @@ dashboardPage(
               ,includeHTML('www/cookie_handler.html')
               ,includeScript("www/hide_when_loading.js")
               ,useShinyjs()  # Set up shinyjs
+              ,rclipboardSetup()
 
               
               
@@ -60,9 +61,9 @@ dashboardPage(
       tabItem(tabName = "catalogue",
               
               fluidRow(my_value_boxesUI("valueBoxes")),
-              div(class="resultats",style="padding-top:50px;padding-bottom:50px;",#style="width:95%;margin-left:20px; margin-right:20px",
+              div(class="resultats",style="padding-top:20px;padding-bottom:20px;",#style="width:95%;margin-left:20px; margin-right:20px",
                   fluidRow(
-                    div(id="tag_div",class="col-sm-6 inbody_selector",
+                    div(id="tag_div",class="col-sm-5 inbody_selector",
                         selectizeInput(inputId="tag",
                                        label = "Recherche par tags",#selected = ,
                                        choices = tags_class_list,#selectize = F,size = length(tag_names)+5,
@@ -71,7 +72,7 @@ dashboardPage(
                           icon("question-circle") %>%
                             bs_embed_tooltip(title = "Choisissez une ou plusieurs thématique(s) de votre choix pour commencer à explorer le catalogue des indicateurs. Sinon vous pouvez également utiliser la recherche par mot-clef.")
                         )),
-                    div(id="search_keywords_div",class="col-sm-6 inbody_selector",
+                    div(id="search_keywords_div",class="col-sm-5 inbody_selector",
                         selectizeInput(inputId="search_keywords",
                                        label = "Recherche par mot(s) clef(s)",
                                        # choices = term_freq_global$word,
@@ -85,10 +86,11 @@ dashboardPage(
                         )%>%shinyInput_label_embed(
                           icon("question-circle") %>%
                             bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs. Les mots-clefs sont triés par fréquence.")
-                        ))),
+                        )),
+                    div(id="get_URL_button",class="col-sm-2 inbody_selector",uiOutput("get_url_button"))),
                   fluidRow(
                     div(id="placeholder_datatable",htmlOutput("placeholder_DT")),
-                    div(id="get_URL_button",htmlOutput("get_url_button")),
+                    
                     div(id="carto_datatable",dataTableOutput("DT_to_render")))),
               includeHTML("www/footer_catalogue.html"))
     )
