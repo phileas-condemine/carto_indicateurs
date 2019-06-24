@@ -35,7 +35,13 @@ function(input,output,session){
       print(val)
       db$insert(data.frame(id=id,time=Sys.time(),input="search_keywords",valeur=val))
     })
-
+    observeEvent(input$clipbtn,{
+      val=url_to_bookmark()
+      print("share url")
+      print(val)
+      db$insert(data.frame(id=id,time=Sys.time(),input="share_url",valeur=val))
+    })
+    
   }
   
 
@@ -187,7 +193,7 @@ function(input,output,session){
 
       removeUI(selector = "#tag_div",immediate = T,session=session)
       insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
-               ui = div(id="tag_div",class="col-sm-5 inbody_selector",
+               ui = div(id="tag_div",class="col-sm-6 inbody_selector",
                         selectizeInput(inputId="tag",
                                        label = "Recherche par tags",
                                        choices = tags_class_list,#selectize = F,size = length(tag_names)+5,
@@ -260,7 +266,7 @@ function(input,output,session){
       }
       removeUI(selector = "#tag_div",immediate = T,session=session)
       insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
-               ui = div(id="tag_div",class="col-sm-5 inbody_selector",
+               ui = div(id="tag_div",class="col-sm-6 inbody_selector",
                         selectizeInput(inputId="tag",options=list(closeAfterSelect = TRUE,plugins= list('remove_button'),placeholder = sprintf('Ajoutez un filtre en choisissant parmi les %s thématiques liées à la santé',length(unlist(tags_class_list)))),
                                        label = "Recherche par tags",
                                        selected = currently_selected_tags,

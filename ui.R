@@ -63,7 +63,7 @@ dashboardPage(
               fluidRow(my_value_boxesUI("valueBoxes")),
               div(class="resultats",style="padding-top:20px;padding-bottom:20px;",#style="width:95%;margin-left:20px; margin-right:20px",
                   fluidRow(
-                    div(id="tag_div",class="col-sm-5 inbody_selector",
+                    div(id="tag_div",class="col-sm-6 inbody_selector",
                         selectizeInput(inputId="tag",
                                        label = "Recherche par tags",#selected = ,
                                        choices = tags_class_list,#selectize = F,size = length(tag_names)+5,
@@ -87,7 +87,7 @@ dashboardPage(
                           icon("question-circle") %>%
                             bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs. Les mots-clefs sont triés par fréquence.")
                         )),
-                    div(id="get_URL_button",class="col-sm-2 inbody_selector",uiOutput("get_url_button"))),
+                    div(id="get_URL_button",class="col-sm-1 inbody_selector",uiOutput("get_url_button"))),
                   fluidRow(
                     div(id="placeholder_datatable",htmlOutput("placeholder_DT")),
                     
