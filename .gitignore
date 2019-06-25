@@ -1,7 +1,9 @@
 .Rproj.user/
 rsconnect/
 old-15janvier2019/
-synonymes/
+synonymes/*.xml
+synonymes/*.txt
+synonymes/*.RData
 test/
 www_old/
 *.xlsx
