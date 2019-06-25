@@ -6,7 +6,7 @@ synonymes/*.txt
 synonymes/*.RData
 test/
 www_old/
-*.xlsx
+data/*.xlsx
 my_token.RData
 tweet_history/
 .Rhistory
