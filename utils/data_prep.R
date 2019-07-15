@@ -1,4 +1,5 @@
 library(data.table)
+library(stringr)
 # tags_applied=fread("data/3105_Index des indicateurs tagges.csv",encoding = "Latin-1")
 
 
@@ -6,7 +7,9 @@ library(data.table)
 
 # data=fread("data/20122018_Index_final.csv",encoding = "Latin-1")
 
-data=fread("data/20122018_Index_final_libreOfficeUTF8.csv",encoding = "UTF-8")
+# data=fread("data/20122018_Index_final_libreOfficeUTF8.csv",encoding = "UTF-8")
+data=fread("data/25062019_Index_final_libreOfficeUTF8.csv",encoding = "UTF-8")
+
 # names(data)
 # data$Indicateur
 last_info=which(names(data)=="OK_")
@@ -90,7 +93,15 @@ tags_class_list=split(tags_class_vec,class_for_split)
 #   table(Encoding(index[[i]]))
 # 
 # }
+
+index$Indicateur
+
 names(index) <- iconv(names(index),to = "UTF-8")
+remove_accents=function(x)x%>%stringi::stri_trans_general("Latin-ASCII")%>%iconv(to="UTF-8")
+index <- index %>% mutate_if(is.character,remove_accents)
+index <- index %>% mutate_if(is.character,toupper)
+index <- data.table(index)
+
 
 save(tag_pred,tags_class_vec,
      # prod_acro,

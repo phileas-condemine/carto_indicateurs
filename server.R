@@ -93,7 +93,9 @@ function(input,output,session){
       }
 
 
-
+      keywords=paste(input$search_keywords,collapse=" ")%>%
+        stringi::stri_trans_general("Latin-ASCII")%>%iconv(to="UTF-8")#"Latin-ASCII"#"ASCII//TRANSLIT"
+      print(keywords)
       my_datatable=datatable(to_plot()[,input$vars_to_show,with=F],
        extensions = c('Buttons'
                       ,'ColReorder'
@@ -107,14 +109,14 @@ function(input,output,session){
          searchCols = default_search_columns,
          search = list(regex = FALSE,
                        caseInsensitive = TRUE,
-                       search = iconv(paste(input$search_keywords,collapse=" "),to = "UTF-8")),
+                       search = keywords),
          fixedHeader = TRUE,
          language = list(
            info = 'Résultats _START_ à _END_ sur une liste de _TOTAL_.',
            paginate = list(previous = 'Précédent', `next` = 'Suivant'),
            lengthMenu='Afficher _MENU_ résultats'
            ),
-         dom = "tBpl",# "Blftipr"
+         dom = "itBpl",# "Blftipr"
          initComplete = JS(readLines("www/custom_DT.js")),#custom_DT,
          scrollX=F,
          pageLength = 50,
@@ -209,6 +211,14 @@ function(input,output,session){
     }})
   })
 
+  observeEvent(input$feedback_send,{
+    text_to_send=input$feedback_content
+    print(text_to_send)
+    if(to_mongo_db)
+      db$insert(data.frame(id=id,time=Sys.time(),input="feedback",valeur=text_to_send))
+    
+  })
+  
   observeEvent(c(input$DT_to_render_rows_all),{
     isolate({
 

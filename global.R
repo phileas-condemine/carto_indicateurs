@@ -8,6 +8,7 @@ library(V8)
 library(shinyjs)
 library(shinydashboard)
 library(shinyBS)
+library(stringi)
 library(stringr)
 library(markdown)
 library(shinycssloaders)
@@ -36,10 +37,7 @@ if (!exists("default_search_columns")) default_search_columns <- NULL
 
 
 load("data/init_data2.RData")
-# names(index) <- iconv(names(index),to = "UTF-8")
-# index <- index %>% mutate_if(is.character,iconv,from="latin1",to="UTF-8")
-# index <- data.table(index)
-# save(tag_pred,index,tags_class_list,tag_names,file="data/init_data2.RData")
+
 
 index[,random_order:=sample(.N)]
 setorder(index,random_order)
@@ -124,7 +122,7 @@ observe({
   output$prod_ppal=renderValueBox({
     nm=strsplit(as.character(my_data$Producteurs),",")%>%unlist%>%table%>%sort(decreasing=T)%>%head(1)%>%names
     box1<-valueBox(value=nm,
-              subtitle = "Favori",
+              subtitle = "Principal",
              icon = icon("star"),
              color = "blue",href=paste0("https://search.lilo.org/searchweb.php?q=",nm)#%>%URLencode
              )
@@ -150,7 +148,7 @@ observe({
     box1<-valueBox(value=nm,
              # sapply(prod_acro,function(x)sum(grepl(pattern = x,my_data$Producteur)))%>%sort(decreasing = T)%>%head(1)%>%names
              # IL Y A QQCH A FAIRE AUTOUR DE overflow: auto; https://www.w3schools.com/css/css_align.asp
-             subtitle = "Tags",
+             subtitle = "Thématique(s)",
              icon = icon("filter"),
              color = "blue",href='#')
     box1$children[[1]]$attribs$class<-"action-button"

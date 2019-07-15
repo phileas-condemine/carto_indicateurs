@@ -181,3 +181,8 @@ img {
   min-height:300px;
   overflow:auto;
 }
+
+
+#slicker_carousel {
+  margin-bottom:100px;
+}

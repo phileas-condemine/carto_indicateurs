@@ -37,35 +37,48 @@ dashboardPage(
                    sidebarMenu(id="sidebarmenu",
                                menuItem(text = "Les indicateurs",icon = shiny::icon("search"),tabName="catalogue"),
                                
-                               # menuItem("Accueil",icon = shiny::icon("home"),tabName="Accueil"),
-                               
+                               menuItem("Accueil",icon = shiny::icon("home"),tabName="Accueil"),
+                               menuItem("Les indicateurs en chiffres",icon = shiny::icon("tachometer-alt"),tabName="Stats_indicateurs"),
                                menuItem(text = "Paramétrage",icon = shiny::icon("gear"),
                                         selectInput(inputId="vars_to_show",label="Variables à afficher",
                                                     selected = init_vars_to_show,choices=names(index),multiple=T),
                                         sliderInput(inputId="nb_chars_cut",label = "Troncage du texte de l'indicateur",
                                                     min = 0,max=max(nchar(index$Indicateur)),value = 80,
-                                                    step = 10,round = T,ticks = F,animate = F))),
-                   includeHTML("www/logos.html")
+                                                    step = 10,round = T,ticks = F,animate = F)),
+                               menuItem(text="Commentaire/remarque",icon=icon("question"),
+                                        textAreaInput("feedback_content","Nous contacter",placeholder="Bonjour\nJ'ai trouvé dans le site une incohérence\nJ'ai une suggestion...\nMerci\nSignature ou anonyme",height = "200px"),
+                                        actionButton("feedback_send","Nous contacter",icon=icon("feather"))
+                               ))
+                   # ,includeHTML("www/logos.html")
                    # ,tags$img(src="Logo_Drees.jpg")
   ),
   dashboardBody(
     
     tabItems(
-      # tabItem(tabName = "Accueil",
-      #         includeHTML("www/accueil.html"),
-      #         s2,
-      #         slickROutput("slicker_carousel",height = "300"),
-      #         includeHTML("www/footer_accueil.html")
-      # ),
-      
+      tabItem(tabName = "Accueil",
+              includeHTML("www/accueil.html"),
+              s2,
+              div(id="placeholder_datatable",htmlOutput("placeholder_DT")),
+              slickROutput("slicker_carousel",height = "300"),
+              includeHTML("www/footer_accueil.html")
+      ),
+      tabItem(tabName = "Stats_indicateurs",
+              fluidRow(my_value_boxesUI("valueBoxes"))
+      ),
       tabItem(tabName = "catalogue",
               
-              fluidRow(my_value_boxesUI("valueBoxes")),
+                   fluidRow(
+                    div(style="margin-left: 15px;margin-bottom: 30px;margin-top: 20px;",
+                      h3("L'ensemble des indicateurs de santé recensés dans un même site")
+                    )),             
               div(class="resultats",style="padding-top:20px;padding-bottom:20px;",#style="width:95%;margin-left:20px; margin-right:20px",
+                  
+
+                  
                   fluidRow(
                     div(id="tag_div",class="col-sm-6 inbody_selector",
                         selectizeInput(inputId="tag",
-                                       label = "Recherche par tags",#selected = ,
+                                       label = "Recherche par thématique",#selected = ,
                                        choices = tags_class_list,#selectize = F,size = length(tag_names)+5,
                                        multiple=T,options = list(closeAfterSelect = TRUE,plugins= list('remove_button'),placeholder = sprintf('Ajoutez un filtre en choisissant parmi les %s thématiques liées à la santé',length(unlist(tags_class_list))))
                         )%>%shinyInput_label_embed(
@@ -74,7 +87,7 @@ dashboardPage(
                         )),
                     div(id="search_keywords_div",class="col-sm-5 inbody_selector",
                         selectizeInput(inputId="search_keywords",
-                                       label = "Recherche par mot(s) clef(s)",
+                                       label = "Recherche par mot(s)",
                                        # choices = term_freq_global$word,
                                        choices = setNames(term_freq_global$word,paste0(term_freq_global$word,' (',term_freq_global$freq,')')),
                                        
@@ -89,10 +102,12 @@ dashboardPage(
                         )),
                     div(id="get_URL_button",class="col-sm-1 inbody_selector",uiOutput("get_url_button"))),
                   fluidRow(
-                    div(id="placeholder_datatable",htmlOutput("placeholder_DT")),
                     
                     div(id="carto_datatable",dataTableOutput("DT_to_render")))),
               includeHTML("www/footer_catalogue.html"))
+      # ,tabItem(tabName = "feedback_tabItem",
+      #   actionButton("feedback","Commentaires/remarques",icon=icon("question"))
+      # )
     )
   )
 )
