@@ -186,3 +186,9 @@ img {
 #slicker_carousel {
   margin-bottom:100px;
 }
+
+#shiny-notification-notif_tags {
+             position:fixed;
+             top: calc(30%);
+             left: calc(60%);
+}

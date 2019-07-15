@@ -83,6 +83,7 @@ function(input,output,session){
   output$DT_to_render=renderDT({
     # print("search keywords in renderDT")
     # print(input$search_keywords)
+    # req(isTruthy(input$tag)|isTruthy(input$search_keywords))
     if(length(input$tag)>0|length(input$search_keywords)>0){
 
       if(!displayed_notif_about_randomization()){
@@ -92,9 +93,12 @@ function(input,output,session){
         displayed_notif_about_randomization(T)
       }
 
-
-      keywords=paste(input$search_keywords,collapse=" ")%>%
-        stringi::stri_trans_general("Latin-ASCII")%>%iconv(to="UTF-8")#"Latin-ASCII"#"ASCII//TRANSLIT"
+      # keywords=paste0("'[(^| )",input$search_keywords,"( |$|,|-)]'")
+      keywords=input$search_keywords
+      keywords=paste(keywords,collapse=" ")%>%
+        stringi::stri_trans_general("Latin-ASCII")%>%#pour les nouveaux mots clefs "create=T"
+        iconv(to="UTF-8")
+      
       print(keywords)
       my_datatable=datatable(to_plot()[,input$vars_to_show,with=F],
        extensions = c('Buttons'
@@ -107,12 +111,13 @@ function(input,output,session){
          searchHighlight = TRUE,
          stateSave = FALSE,
          searchCols = default_search_columns,
-         search = list(regex = FALSE,
+         search = list(regex = TRUE,
                        caseInsensitive = TRUE,
                        search = keywords),
          fixedHeader = TRUE,
          language = list(
            info = 'Résultats _START_ à _END_ sur une liste de _TOTAL_.',
+           infoFiltered = '(parmi _MAX_ indicateurs recensés)',
            paginate = list(previous = 'Précédent', `next` = 'Suivant'),
            lengthMenu='Afficher _MENU_ résultats'
            ),
@@ -170,6 +175,7 @@ function(input,output,session){
     if((length(input$tag)==0)&(length(input$search_keywords)==0)&displayed_notif_about_randomization()){#On utilise displayed_notif_about_randomization pour vérifier qu'on n'est pas à la phase d'initialisation ie un tableau a déjà été affiché !
       term_freq=full_text_split[,list(freq=.N),by="word"]
       term_freq=term_freq[!word%in%stopwords_vec]
+      # term_freq=rbind(data.table(word=currently_selected_keywords,freq=""))
       setorder(term_freq,-freq)
       removeUI(selector = "#search_keywords_div",immediate = T,session=session)
       insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
@@ -179,9 +185,9 @@ function(input,output,session){
                                        choices = setNames(term_freq$word,paste0(term_freq$word,' (',term_freq$freq,')')),
                                        multiple=T,
                                        options = list(closeAfterSelect = TRUE,
-                                                      create = TRUE,plugins= list('remove_button'),
+                                                      create = T,plugins= list('remove_button'),
                                                       # render = I(JS(readLines("render_selectizeInput_keywords.js"))),
-                                                      placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...')
+                                                      placeholder = "Texte libre, exemple : aide médicale d'état")
                         )%>%shinyInput_label_embed(
                           icon("question-circle") %>%
                             bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs.")
@@ -189,9 +195,9 @@ function(input,output,session){
       # updateSelectizeInput(session,inputId = "search_keywords",server=T,selected = currently_selected_keywords,
       #                      choices = term_freq%>%mutate(label=word)%>%rename(value=word),
       #                      options = list(closeAfterSelect = TRUE,
-      #                                                create = TRUE,plugins= list('remove_button'),
+      #                                                create = FALSE,plugins= list('remove_button'),
       #                                                render = I(JS(readLines("render_selectizeInput_keywords.js"))),
-      #                                                placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...'))
+      #                                                placeholder = 'Entrez un mot à la fois, sans accent.'))
 
       removeUI(selector = "#tag_div",immediate = T,session=session)
       insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
@@ -236,8 +242,12 @@ function(input,output,session){
         term_freq=full_text_split[,list(freq=.N),by="word"]
       }
       term_freq=term_freq[!word%in%stopwords_vec]
+      currently_selected_keywords=input$search_keywords%>%
+        stringi::stri_trans_general("Latin-ASCII")%>%
+        iconv(to="UTF-8")%>%toupper()
+      if(length(currently_selected_keywords)>0)
+        term_freq=rbind(term_freq,data.table(word=currently_selected_keywords,freq=""))
       setorder(term_freq,-freq)
-      currently_selected_keywords=input$search_keywords
       removeUI(selector = "#search_keywords_div",immediate = T,session=session)
       insertUI(selector = ".resultats",where = "afterBegin",immediate = T,session = session,
                ui = div(id="search_keywords_div",class="col-sm-5 inbody_selector",
@@ -248,9 +258,9 @@ function(input,output,session){
                                        choices = setNames(term_freq$word,paste0(term_freq$word,' (',term_freq$freq,')')),
                                        
                                        multiple=T,options = list(closeAfterSelect = TRUE,
-                                                                 create = TRUE,plugins= list('remove_button'),
+                                                                 create = T,plugins= list('remove_button'),
                                                                  # render = I(JS(readLines("render_selectizeInput_keywords.js"))),
-                                                                 placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...')
+                                                                 placeholder = "Texte libre, exemple : aide médicale d'état")
                         )%>%shinyInput_label_embed(
                           icon("question-circle") %>%
                             bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs.")
@@ -487,6 +497,12 @@ function(input,output,session){
   })
 
 
+  observeEvent(input$last_tag_hovered,{
+    print(input$last_tag_hovered)
+    showNotification(id = "notif_tags",session = session,type = "message",duration = 20,
+                     ui = tags_class[valeur%in%input$last_tag_hovered]$definition)
+  })
+  
 
   ##### click sur les boxes du placeholder_datatable
 

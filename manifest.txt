@@ -3,6 +3,7 @@ global.R
 server.R
 data/init_data2.RData
 readme.md
+data/classif_tags.csv
 www/my_styles.css
 www/cookie_handler.html
 www/carto_icon2.png

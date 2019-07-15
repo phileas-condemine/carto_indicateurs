@@ -53,6 +53,5 @@ setInterval(checkifrunning, 50);
 
 setInterval(move_navpills, 50);
 
-setInterval(check_input_length, 500);
-
+/*setInterval(check_input_length, 500);*/
 

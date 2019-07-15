@@ -35,6 +35,7 @@ if (!exists("default_search")) default_search <- ""
 # default column search values
 if (!exists("default_search_columns")) default_search_columns <- NULL
 
+tags_class=fread("data/classif_tags.csv",encoding="UTF-8")
 
 load("data/init_data2.RData")
 

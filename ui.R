@@ -25,6 +25,7 @@ dashboardPage(
               ,includeCSS("www/my_styles.css")
               ,includeHTML('www/cookie_handler.html')
               ,includeScript("www/hide_when_loading.js")
+              ,tags$script(JS(readLines("www/capture_hover.js")))
               ,useShinyjs()  # Set up shinyjs
               ,rclipboardSetup()
 
@@ -93,9 +94,10 @@ dashboardPage(
                                        
                                        multiple=T,
                                        options = list(closeAfterSelect = TRUE,
-                                                      create = TRUE,plugins= list('remove_button'),
+                                                      create = T,
+                                                      plugins= list('remove_button'),
                                                       # render = I(JS(readLines("render_selectizeInput_keywords.js"))),
-                                                      placeholder = 'Entrez les mots-clefs de votre choix : ald, précarité, dépenses, handicap...')
+                                                      placeholder = "Texte libre, exemple : aide médicale d'état")
                         )%>%shinyInput_label_embed(
                           icon("question-circle") %>%
                             bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs. Les mots-clefs sont triés par fréquence.")

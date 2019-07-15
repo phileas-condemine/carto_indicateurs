@@ -61,7 +61,7 @@ table(rowSums(tag_pred[,-1]))
 tag_names=names(data)[(last_info+1):ncol(data)]
 
 tags_class=fread("data/classif_tags.csv",encoding="UTF-8")
-# tags_class$alias=iconv(tags_class$alias,to="UTF-8")
+
 tags_class_vec=c(tags_class$valeur)
 names(tags_class_vec) <- tags_class$alias
 
@@ -124,7 +124,7 @@ init_vars_to_show=
 
 full_text=pbapply::pbapply(index[,init_vars_to_show,with=F],1,paste,collapse=" ")
 
-full_text=tolower(full_text)
+full_text=toupper(full_text)
 full_text=gsub(x = full_text,
                           pattern = "[[:punct:]]",
                           replacement=" ")
@@ -143,7 +143,7 @@ full_text_split=unique(full_text_split)
 full_text_split=full_text_split[!grepl(pattern = "^(([0-9])|( ))+$",
                                        full_text_split$word)]
 stopwords_vec=stopwords::stopwords(language = "fr")
-stopwords_vec=c(stopwords_vec,"na"," ","")
+stopwords_vec=c(stopwords_vec,"na"," ","","a")%>%toupper()
 # full_text_split$word <- enc2native(full_text_split$word)
 save(stopwords_vec,full_text_split,file="data/term_freq.RData")
 
