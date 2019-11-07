@@ -25,7 +25,9 @@ dashboardPage(
               ,includeCSS("www/my_styles.css")
               ,includeHTML('www/cookie_handler.html')
               ,includeScript("www/hide_when_loading.js")
+              ,includeScript("www/check_browser.js")
               ,tags$script(JS(readLines("www/capture_hover.js")))
+              ,tags$script(JS(readLines("www/get_ip.js")))
               ,useShinyjs()  # Set up shinyjs
               ,rclipboardSetup()
 
@@ -48,6 +50,8 @@ dashboardPage(
                                                     step = 10,round = T,ticks = F,animate = F)),
                                menuItem(text="Commentaire/remarque",icon=icon("question"),
                                         textAreaInput("feedback_content","Nous contacter",placeholder="Bonjour\nJ'ai trouvé dans le site une incohérence\nJ'ai une suggestion...\nMerci\nSignature ou anonyme",height = "200px"),
+                                        textInput("adresse_mail","Adresse e-mail",placeholder = "ex drees-infos@sante.gouv.fr"),
+                                        textInput("name_sender","NOM et Prénom",placeholder ="AUBERT Jean-Marc"),
                                         actionButton("feedback_send","Nous contacter",icon=icon("feather"))
                                ))
                    # ,includeHTML("www/logos.html")
@@ -77,6 +81,7 @@ dashboardPage(
 
                   
                   fluidRow(
+                    div(id="two_inputs",
                     div(id="tag_div",class="col-sm-6 inbody_selector",
                         selectizeInput(inputId="tag",
                                        label = "Recherche par thématique",#selected = ,
@@ -88,7 +93,7 @@ dashboardPage(
                         )),
                     div(id="search_keywords_div",class="col-sm-5 inbody_selector",
                         selectizeInput(inputId="search_keywords",
-                                       label = "Recherche par mot(s)",
+                                       label = "Recherche par mot(s)-clef(s)",
                                        # choices = term_freq_global$word,
                                        choices = setNames(term_freq_global$word,paste0(term_freq_global$word,' (',term_freq_global$freq,')')),
                                        
@@ -101,11 +106,11 @@ dashboardPage(
                         )%>%shinyInput_label_embed(
                           icon("question-circle") %>%
                             bs_embed_tooltip(title = "Utilisez la barre de recherche semi-automatique pour sélectionner des mots-clefs pertinents pour explorer le catalogue des indicateurs. Les mots-clefs sont triés par fréquence.")
-                        )),
+                        ))),
                     div(id="get_URL_button",class="col-sm-1 inbody_selector",uiOutput("get_url_button"))),
                   fluidRow(
-                    
-                    div(id="carto_datatable",dataTableOutput("DT_to_render")))),
+                    div(id="carto_datatable",DT::DTOutput("DT_to_render")))),
+                    # div(id="carto_datatable",dataTableOutput("DT_to_render")))),
               includeHTML("www/footer_catalogue.html"))
       # ,tabItem(tabName = "feedback_tabItem",
       #   actionButton("feedback","Commentaires/remarques",icon=icon("question"))
